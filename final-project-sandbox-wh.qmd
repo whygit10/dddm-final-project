@@ -27,8 +27,15 @@ pacman::p_load(tidyverse, here, skimr)
 ```
  
 ```{r}
-loan_df <- read.csv(here('loan-test.csv'))
-cell_phones_df <- read.csv(here('Cellphone.csv'))
+loan_df <- read.csv(here('data', 'loan-test.csv'))
+cell_phones_df <- read.csv(here('data', 'Cellphone.csv'))
+bank_full_df <- read.csv(here('data', 'bank-full.csv'))
+census_df <- read.csv(here('data', 'census_income_data.csv'))
+CIA_df <- read.csv(here('data', 'CIA_Country_Facts.csv'))
+credit_def_df <- read.csv(here('data', 'credit_default_risk.csv'))
+mouse_df <- read.csv(here('data', 'mouse_viral_study.csv'))
+penguins_df <- read.csv(here('data', 'penguins_lter.csv'))
+telco_df <- read.csv(here('data', 'Telco-Customer-Churn.csv'))
 ```
 
 I used the given test set for the loan dataset because it's smaller and we won't need to do a train-test split for this class anyway.
@@ -63,3 +70,34 @@ Loan has some missing variables, but nothing so bad we couldn't justify filterin
 
 
 Still early on, but right now I like either of these two, and I'm pretty impartial to either one.
+
+```{r}
+skim(bank_full_df)
+```
+
+```{r}
+skim(census_df)
+```
+
+```{r}
+skim(CIA_df)
+```
+
+```{r}
+skim(credit_def_df)
+```
+
+```{r}
+skim(mouse_df)
+```
+
+```{r}
+skim(penguins_df)
+```
+
+```{r}
+skim(telco_df)
+```
+
+Brief look at the datasets: Telco, census, and bank full look pretty promising, specifically bank full. We at least won't have to worry about any missing data with those, and they have a pretty healthy mix of categorical and numeric columns. Somewhat large datasets, but we can always sample if that becomes much of a problem, and I'm not sure it even would be.  
+
