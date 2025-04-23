@@ -1,5 +1,5 @@
 ---
-title: "Final Project"
+title: "Final Project dataset options"
 author: "William Hyltin, Holly Milazzo, Tim Harrison"
 format: html
 ---
@@ -23,7 +23,7 @@ some dataset options:
 From what i've seen I like the cell phone price prediction dataset and the loan eligibility dataset. Both are relatively small, and we've been primarily working with small datasets for his class, and since he's very focused on the statistical methods and tests large datasets will likely cause problems for us.
  
 ```{r}
-pacman::p_load(tidyverse, here, skimr)
+pacman::p_load(tidyverse, here, skimr, corrplot)
 ```
  
 ```{r}
@@ -100,4 +100,12 @@ skim(telco_df)
 ```
 
 Brief look at the datasets: Telco, census, and bank full look pretty promising, specifically bank full. We at least won't have to worry about any missing data with those, and they have a pretty healthy mix of categorical and numeric columns. Somewhat large datasets, but we can always sample if that becomes much of a problem, and I'm not sure it even would be.  
+
+
+```{r}
+bank_full_df %>% 
+  select_if(is.numeric) %>% 
+  cor() %>% 
+  corrplot(method = 'number', number.cex = 0.6)
+```
 
