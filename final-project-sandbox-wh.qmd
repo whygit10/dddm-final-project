@@ -99,5 +99,10 @@ skim(penguins_df)
 skim(telco_df)
 ```
 
-Brief look at the datasets: Telco, census, and bank full look pretty promising, specifically bank full. We at least won't have to worry about any missing data with those, and they have a pretty healthy mix of categorical and numeric columns. Somewhat large datasets, but we can always sample if that becomes much of a problem, and I'm not sure it even would be.  
+Brief look at the datasets: Telco, census, and bank full look pretty promising, specifically bank full. We at least won't have to worry about any missing data with those, and they have a pretty healthy mix of categorical and numeric columns. Somewhat large datasets, but we can always sample if that becomes much of a problem, and I'm not sure it even would be. 
+
+#Holly notes: I agree about using Telco or Bank data since they're easier to develop a "business challenge" with. There isn't missing data but there are values such as "unknown" and some special characters within the data
+
+#Telco data: Predict customer churn, response var: Churn - Use Logistic
+#Bank_full data: Predict customer subscribing, response var: Subscribed - Use Logistic
 
