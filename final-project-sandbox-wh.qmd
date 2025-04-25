@@ -108,7 +108,7 @@ Brief look at the datasets: Telco, census, and bank full look pretty promising, 
 
 
 ```{r}
-bank_full_df %>% 
+telco_df %>% 
   select_if(is.numeric) %>% 
   cor() %>% 
   corrplot(method = 'number', number.cex = 0.6)
