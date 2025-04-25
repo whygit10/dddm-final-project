@@ -1,0 +1,97 @@
+---
+title: "Final Project dataset options"
+author: "William Hyltin, Holly Milazzo, Tim Harrison"
+format: html
+---
+
+```{r}
+pacman::p_load(tidyverse,ggplot2, here, skimr, corrplot)
+```
+
+```{r}
+bank_full_df <- read.csv(here('data', 'bank-full.csv'))
+```
+
+```{r}
+skim(bank_full_df)
+```
+
+```{r}
+bank_full_df %>% 
+  select_if(is.numeric) %>% 
+  cor() %>% 
+  corrplot(method = 'number', number.cex = 0.6)
+```
+So, there's some high correlations between:
+euribor3m and nr.employed: 0.95
+emp.var.rate and euribor3m: 0.97
+emp.var.rate and nr.employed: 0.9
+
+Doing some additional descriptive analysis...
+
+```{r}
+summary(bank_full_df$age)
+summary(bank_full_df$duration)
+summary(bank_full_df$campaign)
+```
+
+```{r}
+
+ggplot(bank_full_df, aes(x = job)) +
+  geom_bar(fill = "steelblue") +
+  theme_minimal() +
+  labs(title = "Distribution of Job Types", x = "Job", y = "Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+```{r}
+ggplot(bank_full_df, aes(y = age)) +
+  geom_boxplot(fill = "tomato") +
+  theme_minimal() +
+  labs(title = "Boxplot of Customer Age", y = "Age")
+
+```
+
+```{r}
+
+ggplot(bank_full_df, aes(x = education)) + 
+  geom_bar(fill = "lightgreen") +
+  labs(title = "Education Level Distribution", x = "Education", y = "Count")
+
+```
+It looks like we could group some of these education levels together, like basic.4y/.6y/.9y with University.degree?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
