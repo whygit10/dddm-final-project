@@ -1,0 +1,116 @@
+---
+title: "Dataset Exploration and Decision"
+author: "William Hyltin, Holly Milazzo, Tim Harrison"
+format: html
+---
+
+some dataset options:  
+
+**Linear Regression**  
+
+1. https://www.kaggle.com/datasets/tawfikelmetwally/advertising-dataset  
+2. https://www.kaggle.com/datasets/mohannapd/mobile-price-prediction  
+3. https://www.kaggle.com/datasets/midhundasl/co2-emission-of-cars-dataset  
+
+**Logistic Regression**  
+ 
+ 1. https://www.kaggle.com/datasets/kandij/diabetes-dataset  
+ 2. https://www.kaggle.com/datasets/marshuu/breast-cancer  
+ 3. https://www.kaggle.com/datasets/alexandrepetit881234/fake-bills  
+ 4. https://www.kaggle.com/datasets/vikasukani/loan-eligible-dataset  
+ 
+
+From what i've seen I like the cell phone price prediction dataset and the loan eligibility dataset. Both are relatively small, and we've been primarily working with small datasets for his class, and since he's very focused on the statistical methods and tests large datasets will likely cause problems for us.
+ 
+```{r}
+pacman::p_load(tidyverse, here, skimr, corrplot)
+```
+ 
+```{r}
+loan_df <- read.csv(here('data', 'loan-test.csv'))
+cell_phones_df <- read.csv(here('data', 'Cellphone.csv'))
+bank_full_df <- read.csv(here('data', 'bank-full.csv'))
+census_df <- read.csv(here('data', 'census_income_data.csv'))
+CIA_df <- read.csv(here('data', 'CIA_Country_Facts.csv'))
+credit_def_df <- read.csv(here('data', 'credit_default_risk.csv'))
+mouse_df <- read.csv(here('data', 'mouse_viral_study.csv'))
+penguins_df <- read.csv(here('data', 'penguins_lter.csv'))
+telco_df <- read.csv(here('data', 'Telco-Customer-Churn.csv'))
+```
+
+I used the given test set for the loan dataset because it's smaller and we won't need to do a train-test split for this class anyway.
+
+```{r}
+loan_df %>% head()
+```
+
+```{r}
+cell_phones_df %>% head()
+```
+
+```{r}
+plot(select_if(loan_df, is.numeric))
+```
+
+```{r}
+plot(select_if(cell_phones_df, is.numeric))
+```
+
+Basically illegible, there's so many variables we'll likely need to do variable selection early on (qualitatively rather than quantitatively).
+
+```{r}
+skim(cell_phones_df)
+```
+
+```{r}
+skim(loan_df)
+```
+
+Loan has some missing variables, but nothing so bad we couldn't justify filtering or imputing or something.
+
+
+Still early on, but right now I like either of these two, and I'm pretty impartial to either one.
+
+```{r}
+skim(bank_full_df)
+```
+
+```{r}
+skim(census_df)
+```
+
+```{r}
+skim(CIA_df)
+```
+
+```{r}
+skim(credit_def_df)
+```
+
+```{r}
+skim(mouse_df)
+```
+
+```{r}
+skim(penguins_df)
+```
+
+```{r}
+skim(telco_df)
+```
+
+Brief look at the datasets: Telco, census, and bank full look pretty promising, specifically bank full. We at least won't have to worry about any missing data with those, and they have a pretty healthy mix of categorical and numeric columns. Somewhat large datasets, but we can always sample if that becomes much of a problem, and I'm not sure it even would be. 
+
+#Holly notes: I agree about using Telco or Bank data since they're easier to develop a "business challenge" with. There isn't missing data but there are values such as "unknown" and some special characters within the data
+
+#Telco data: Predict customer churn, response var: Churn - Use Logistic
+#Bank_full data: Predict customer subscribing, response var: Subscribed - Use Logistic
+
+
+```{r}
+telco_df %>% 
+  select_if(is.numeric) %>% 
+  cor() %>% 
+  corrplot(method = 'number', number.cex = 0.6)
+```
+
