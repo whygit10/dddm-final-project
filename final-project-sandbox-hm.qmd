@@ -5,93 +5,142 @@ format: html
 ---
 
 ```{r}
-pacman::p_load(tidyverse,ggplot2, here, skimr, corrplot)
+pacman::p_load(tidyverse, ggplot2, dplyr, here, skimr, corrplot)
 ```
 
 ```{r}
-bank_full_df <- read.csv(here('data', 'bank-full.csv'))
+telco_df <- read.csv(here('data', 'Telco-Customer-Churn.csv'))
 ```
 
 ```{r}
-skim(bank_full_df)
+skim(telco_df)
 ```
 
 ```{r}
-bank_full_df %>% 
+telco_df %>% 
   select_if(is.numeric) %>% 
   cor() %>% 
   corrplot(method = 'number', number.cex = 0.6)
 ```
-So, there's some high correlations between:
-euribor3m and nr.employed: 0.95
-emp.var.rate and euribor3m: 0.97
-emp.var.rate and nr.employed: 0.9
 
-Doing some additional descriptive analysis...
+Interpretation of correlation matrix: Tenure and TotalCharges have strong positive correlation (0.83) but not surprisint since the longer a customer has been with the company, the more money they've been billed overall - will not use both of these variables in the model
+
+We know we are going to use 'Churn' as our response (Y) variable, so we're going to transform it where 'No'=0 and 'Yes'=1
 
 ```{r}
-summary(bank_full_df$age)
-summary(bank_full_df$duration)
-summary(bank_full_df$campaign)
+telco_df$Churn <- ifelse(telco_df$Churn == "Yes", 1, 0)
 ```
+
+And dropping any obviously un-useful variables such as 'CustomerID' and 'TotalCharges'
 
 ```{r}
-
-ggplot(bank_full_df, aes(x = job)) +
-  geom_bar(fill = "steelblue") +
-  theme_minimal() +
-  labs(title = "Distribution of Job Types", x = "Job", y = "Count") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
+telco_df <- telco_df %>% select(-customerID, -TotalCharges)
 ```
+
+Converting character columns to factors
 
 ```{r}
-ggplot(bank_full_df, aes(y = age)) +
-  geom_boxplot(fill = "tomato") +
-  theme_minimal() +
-  labs(title = "Boxplot of Customer Age", y = "Age")
-
+telco_df <- telco_df %>% mutate_if(is.character, as.factor)
 ```
+
+Before moving into any stepwise selection of our variables, we first split our data into train and test. We do this first to prevent our test data from intermixing with our training data which could lead to overfitting of our model.
 
 ```{r}
 
-ggplot(bank_full_df, aes(x = education)) + 
-  geom_bar(fill = "lightgreen") +
-  labs(title = "Education Level Distribution", x = "Education", y = "Count")
+set.seed(123)
+train_index <- sample(seq_len(nrow(telco_df)), size = 0.7*nrow(telco_df))
+
+train_data <- telco_df[train_index, ]
+test_data <- telco_df[-train_index, ]
+```
+
+Narrowing down our 21 variables to keep only the ones that would be useful for our logistic model, we use stepwise selection (both backward/forward selection) to allow for a dynamic elimination process on our training data
+
+```{r}
+full_model <- glm(Churn ~ ., data = train_data, family = binomial)
 
 ```
-It looks like we could group some of these education levels together, like basic.4y/.6y/.9y with University.degree?
 
+```{r}
+step_model <- step(full_model, direction = "both")
+```
 
+The results of running our stepwise selection was that 12 out of 21 variables were determined to be important predictors to customer churn. Predictors that were dropped as significant appeared to be a lot of demographic type such as: SeniorCitizen, gender, and partner. The really important predictors appeared to be: Service usage variables: MultipleLines, InternetService, OnlineBackup, DeviceProtection, StreamingTV, StreamingMovies Contract/payment types: Contract, PaperlessBilling, PaymentMethod Tenure MonthlyCharges
 
+Running a summary of the step_model on the training data
 
+```{r}
+summary(step_model)
+```
 
+Before running our model on the test data, we'll perform some Odds Ratio on the step_model using the training data to further explain how each variable affects the likelihood of churn...
 
+```{r}
+# odds ratios
+exp(coef(step_model))
 
+# odds ratios + confidence intervals
+exp(cbind(OR = coef(step_model), confint(step_model)))
+```
 
+Interpretation:
 
+We know that...
 
+-   if the OR (odds ratio) is \> than 1 : The variable (predictor) increases the odds of customer churn
 
+| Predictor                     | Odds Ratio (OR) | Interpretation                                                     |
+|:------------------------------|:----------------|:-------------------------------------------------------------------|
+| MultipleLinesYes              | 1.96            | Having multiple lines nearly **doubles** churn odds.               |
+| InternetServiceFiber optic    | 11.51           | Fiber optic users are **11x more likely** to churn.                |
+| OnlineBackupYes               | 1.30            | Customers with online backup are **30% more likely** to churn.     |
+| DeviceProtectionYes           | 1.35            | Customers with device protection are **35% more likely** to churn. |
+| StreamingTVYes                | 2.47            | Streaming TV users are **2.5x more likely** to churn.              |
+| StreamingMoviesYes            | 2.54            | Streaming Movies users are **2.5x more likely** to churn.          |
+| PaperlessBillingYes           | 1.34            | Paperless billing customers are **33% more likely** to churn.      |
+| PaymentMethodElectronic check | 1.30            | Paying by electronic check increases churn odds by **30%**.        |
 
+-   if the OR (odds ratio) is less than 1 : The variable (predictor) decreases the odds of customer churn
 
+| Predictor                 | Odds Ratio (OR) | Interpretation                                                                  |
+|:--------------------------|:----------------|:--------------------------------------------------------------------------------|
+| DependentsYes             | 0.79            | Customers with dependents are **21% less likely** to churn.                     |
+| InternetServiceNo         | 0.11            | Customers with no internet service are **much less likely** to churn.           |
+| ContractOne year          | 0.46            | One-year contract customers are **54% less likely** to churn.                   |
+| ContractTwo year          | 0.24            | Two-year contract customers are **76% less likely** to churn.                   |
+| PaymentMethodMailed check | 0.89            | Paying by mailed check slightly **reduces** churn risk.                         |
+| MonthlyCharges            | 0.94            | Slight effect --- higher monthly charges very slightly **decrease** churn risk. |
 
+Now to try our model on the test data..
 
+```{r}
+pred_probs <- predict(step_model, newdata = test_data, type = "response")
+pred_class <- ifelse(pred_probs > 0.5, "Yes", "No")
+```
 
+and evaluate the performance...
 
+```{r}
+table(Predicted = pred_class, Actual = test_data$Churn)
+```
 
+Interpretation of model evaluation:
 
+The logistic regression model achieved an 81.5% accuracy on the test set. Precision was relatively strong at 69.1%, meaning when the model predicts churn, it is usually correct. However, the recall was 55.2%, indicating that about half of true churners were correctly identified. Overall, the model provides valuable insights for targeting at-risk customers, but improvements could be made to capture more churn cases.
 
+#JUST SEEING IF I CAN MAKE A BETTER MODEL FROM THIS POINT FORWARD.
 
+Trying out lowering the threshold to 0.4 instead
 
+```{r}
+pred_class <- ifelse(pred_probs > 0.4, 1, 0)
 
+```
 
+```{r}
+table(Predicted = pred_class, Actual = test_data$Churn)
+```
 
+Interpretation after dropping threshold:
 
-
-
-
-
-
-
-
-
+By adjusting the decision threshold from 0.5 to 0.4, we did improve the model's ability to identify churners --- increased the recall from 55% to 67%. The trade-off was a small reduction in precision, but overall, the model became more effective at detecting customers who are at risk of leaving. The F1 Score also improved, indicating a better balance between precision and recall.
