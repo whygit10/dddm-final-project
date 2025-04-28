@@ -1,0 +1,520 @@
+---
+title: "Final Project"
+author: "William Hyltin, Holly Milazzo, Tim Harrison"
+format: html
+---
+
+```{r}
+pacman::p_load(tidyverse, here, latex2exp, caret, skimr, corrplot, patchwork)
+```
+
+```{r}
+telco_df <- read.csv(here('data', 'Telco-Customer-Churn.csv'))
+```
+
+```{r}
+skim(telco_df)
+```
+
+```{r}
+telco_df %>% ggplot(aes(x = Churn)) +
+  geom_bar() +
+  labs(title = 'Distribution of Churn',
+       subtitle = 'Our response variable is imbalanced, with far fewer customers churned than otherwise.') +
+  theme_minimal()
+```
+
+
+
+```{r}
+telco_df %>% mutate(
+  SeniorCitizen = as.factor(SeniorCitizen)
+  ) %>% 
+  select_if(is.numeric) %>% 
+  cor() %>% 
+  corrplot(method = 'number', number.cex = 0.6, tl.cex = 0.7)
+```
+
+Interpretation of correlation matrix: Tenure and TotalCharges have strong positive correlation (0.83) but not surprisint since the longer a customer has been with the company, the more money they've been billed overall - will not use both of these variables in the model
+
+
+```{r}
+telco_df %>% mutate(
+  SeniorCitizen = as.factor(SeniorCitizen)
+  ) %>% 
+  select_if(is.numeric) %>% plot(.)
+```
+
+Plotting continuous variables against each other we can see the strong correlation between total charges and monthly charges even more clearly. One last check, just to be sure there isn't some value in including it.
+
+```{r}
+telco_df %>% ggplot(aes(x = tenure, y = TotalCharges, color = Churn)) +
+  geom_jitter() +
+  labs(title = 'Tenure and Total Charges Correlation',
+       subtitle = 'While not perfectly separable, the two variables together help identify churn.',
+       x = 'Tenure', y = 'Total Charges') +
+  theme_minimal()
+```
+
+```{r}
+boxlist <- lapply(colnames(select_if(telco_df, is.numeric)),
+       function(col) {
+        ggplot(telco_df,
+                aes(y = .data[[col]], x = .data$Churn)) + geom_boxplot() + ggtitle(col)
+       }
+)
+```
+
+```{r}
+boxlist[[2]]
+boxlist[[3]]
+boxlist[[4]]
+```
+
+The four previous plots are more useful, we may not need to include our boxplots at all, but there here if you want them.
+
+```{r}
+denslist <- lapply(colnames(select_if(telco_df, is.numeric)),
+       function(col) {
+        ggplot(telco_df,
+                aes(x = .data[[col]], fill = .data$Churn, color = .data$Churn)) + geom_density(alpha = 0.5, stat = 'bin', bins=20) + 
+           ggtitle(col) +
+           theme_minimal()
+       }
+)
+```
+
+```{r}
+design <- 'AAABBB
+           #CCCC#'
+denslist[[2]] + denslist[[3]] + denslist[[4]] + plot_layout(guides = 'collect', design = design)
+```
+
+These I have here so we can explain why a regular anova test wouldn't work.  Which is because they don't folllow a normal distribution, and they (mostly) don't have the same distribution across levels of Churn.
+
+```{r}
+telco_df %>% ggplot(aes(x = MonthlyCharges, fill = InternetService, color = InternetService)) +
+  geom_density(alpha = 0.5, stat = 'bin', binwidth = 4) +
+  ggtitle('Monthly Charges and Internet Service') +
+  labs(subtitle = 'Internet Service divides Monthly charge distributions into three groups') +
+  theme_minimal()
+```
+
+Additionally, Monthly Charges is broken up into three different groups based on what they have for internet service. Good for explaining why interaction variables would be included later.
+
+```{r}
+histlist <- lapply(colnames(select_if(telco_df, is.numeric)),
+       function(col) {
+        ggplot(telco_df,
+                aes(x = .data[[col]])) + geom_histogram() + ggtitle(col)
+       }
+)
+```
+
+```{r}
+histlist[[2]]
+histlist[[3]]
+histlist[[4]]
+```
+
+Don't need these unles you have something you want for them, the denisty plots cover the distributions pretty nicely.
+
+```{r}
+barlist <- lapply(colnames(select_if(telco_df[!colnames(telco_df) %in% c('Churn', 'customerID')], is.character)),
+       function(col) {
+        ggplot(telco_df,
+                aes(x = .data[[col]], fill = .data$Churn)) + geom_bar(position = 'dodge') + 
+           ggtitle(col) + 
+           theme(legend.position.inside = c(0.8,0.8), legend.background = element_blank()) +
+           theme_minimal()
+       }
+)
+```
+
+```{r}
+for (x in seq((length(colnames(select_if(telco_df[!colnames(telco_df) %in% c('Churn', 'customerID')], is.character))) +1)/2)){
+  ifelse(x != 8,
+         print((barlist[[2*x - 1]] + barlist[[2*x]]) + plot_layout(guides = 'collect')),
+         print(barlist[[2*x - 1]])
+  )
+}
+```
+
+We don't need all of these, see below:
+
+```{r}
+((barlist[[15]] + coord_flip() + theme(axis.text.y = element_text(angle = 45))) + (barlist[[14]] + coord_flip() + theme(axis.text.y = element_text(angle = 45)))) /
+  ((barlist[[6]] + coord_flip() + theme(axis.text.y = element_text(angle = 45))) +(barlist[[13]] + coord_flip() + theme(axis.text.y = element_text(angle = 45)))) + plot_layout(guides = 'collect')
+```
+
+I picked out four barplots that I thought looked significant and patched them together. Payment method has larger churn when payment is by electronic check, paperless billing also looks like it has more churn, Fiber Optic also looks like it has greater churn, and contracts churn more often when the customer is month to month (because they aren't locked into a contract). I'm not too wild about the way this looks with the four together, just trying to save space. If you want to break them up you can just run barlist[[15]] + coord_flip(), and just replace the 15 with either 6, 13, or 14 and that will get you any one of the four.
+
+## Statistical Tests
+
+ANOVA is not likely appropriate for any of these variables, primarily due to the non-normality seen in the histograms/density plots, but we have it in my file if we need it.  
+Wilcoxon Rank Sum could require same shape and spread, just different location, however this is a weak assumption.  
+Sign test is for one sample or paired samples.  
+Wilcoxon sign rank requires distribution symmetry, and one sample or paired.  
+Wilcoxon rank sum/two-sample test: two samples don't need to be same size, non parametric alt to two sample t-test. Could work.  
+Kruskal-Wallis Test: generalize version of rank sum, for more than 2 samples, so no applicable for response variable. Could be used for continuous explanatory x categorical explanatory.
+
+### Wilcoxon Rank Sum Tests
+
+  We perform the Wilcoxon Rank Sum test due to the nature of our continuous variables. For tenure, MonthlyCharges, and TotalCharges, the distributions are non-normal and have potential differences in spread. Some argue we may be able to utilize anova, due to the large sample size in both distributions, however Non-parametric methods may offer more powerful results given the violations of assumptions. The Wilcoxon Rank sum test is the most appropriate for all three variables, due to the varying sizes of the observations across the different class levels of Churn; we would not be able to perform paired tests like the sign rank test.  
+  Note that the structure of these tests will be that we will use our binary response variable to separate our two samples. We will then test the distributions/statistics of our continuous explanatory variable. This may seem counterintuitive, but the intent is this: If we have differences in our explanatory variable distribution when a customer is churned vs not churned, then the variable would likely have an effect on the prediction of a customer churning.  
+
+  **Assumptions**  
+  - The samples do not need to be the same size  
+  - Independent Samples  
+  - The samples should have the same distribution (weak assumption)  
+  
+  **Hypotheses**  
+  $H_{0}:$ The two samples come from the same distribution.  
+  $H_{1}:$ The two samples do not come from the same distribution.  
+  
+  **Type I error**  
+  $\alpha = 0.05$
+  
+```{r}
+wilcoxdf0 <- telco_df %>% 
+  select(tenure, TotalCharges, MonthlyCharges, Churn) %>% 
+  filter(Churn == 'No')
+
+wilcoxdf1 <- telco_df %>% 
+  select(tenure, TotalCharges, MonthlyCharges, Churn) %>% 
+  filter(Churn == 'Yes')
+```
+
+```{r}
+wilten <- wilcox.test(wilcoxdf1$tenure, wilcoxdf0$tenure, paired = FALSE, alternative = 'two.sided')
+wilten
+```
+
+  For tenure, we get a W value of `r wilten$statistic[[1]]`, which results in a p-value of `r wilten$p.value`. Against an alpha level of 0.05, we reject the null hypotheses that the tenure distribution of customers that have churned is the same as the distribution for those that have not churned.
+  
+
+```{r}
+wilmo <- wilcox.test(wilcoxdf1$MonthlyCharges, wilcoxdf0$MonthlyCharges, paired = FALSE, alternative = 'two.sided')
+wilmo
+```
+
+  For Monthly Charges, we get a W value of `r wilmo$statistic[[1]]`, which results in a p-value of `r wilmo$p.value`. Against an alpha level of 0.05, we reject the null hypotheses that the Monthly Charges distribution of customers that have churned is the same as the distribution for those that have not churned.
+  
+
+```{r}
+wiltot <- wilcox.test(wilcoxdf1$TotalCharges, wilcoxdf0$TotalCharges, paired = FALSE, alternative = 'two.sided')
+wiltot
+```
+
+  For Total Charges, we get a W value of `r wiltot$statistic[[1]]`, which results in a p-value of `r wiltot$p.value`. Against an alpha level of 0.05, we reject the null hypotheses that the Total Charges distribution of customers that have churned is the same as the distribution for those that have not churned.
+
+
+  We can see that the continuous variables all have different distributions depending on whether the customer has churned or not. Given this, as well as what was seen in the charts, it is likely we will see some sort of affect on the probability in Churn when we fit a model later on. We do still need to be aware of multicollinearity, particulary between tenure and Total Charges. Our variable selection may take care of this, but still something we should watch out for. 
+
+We know we are going to use 'Churn' as our response (Y) variable, so we're going to transform it where 'No'=0 and 'Yes'=1
+
+**Will, also making this a factor variable, going to use the confusionmatrix function from caret so I believe it needs to be a factor**
+
+```{r}
+telco_df$Churn <- ifelse(telco_df$Churn == "Yes", 1, 0) %>% as.factor()
+```
+
+And dropping any obviously un-useful variables such as 'CustomerID' and 'TotalCharges'
+
+**Will: I'm going to put TotalCharges back in, but mostly so we can get the interaction with tenure.**
+
+```{r}
+telco_df <- telco_df %>% select(-customerID)
+```
+
+Converting character columns to factors
+
+**Will: SeniorCitizen also needs to be converted to a factor, so doing that here.**
+
+```{r}
+telco_df <- telco_df %>% 
+  mutate_if(is.character, as.factor) %>% 
+  mutate(SeniorCitizen = as.factor(SeniorCitizen))
+```
+
+
+**Will: One last cleaning step, this one is kind of a weird one. We were getting some weird errors in the model fits, this is due to perfect correlation between some of the variables. For example, people who do not get internet service won't have online security, so those variables will always align. To fix this, we'll create dummy variables, and remove the ones that are perfectly correlated with InternetService = No and PhoneService = No**
+
+```{r}
+dummify <- dummyVars('~ MultipleLines + OnlineSecurity + OnlineBackup + DeviceProtection + TechSupport + StreamingTV + StreamingMovies', data = telco_df, sep = '')
+dummydf <- data.frame(predict(dummify, newdata = telco_df))
+telco_df <- cbind(telco_df, dummydf) %>% 
+  select(-MultipleLines, -OnlineSecurity, -OnlineBackup, -DeviceProtection, -TechSupport, -StreamingTV, -StreamingMovies) %>% 
+  select(-contains('.service')) %>% 
+  select(-ends_with(('No')))
+```
+
+
+Before moving into any stepwise selection of our variables, we first split our data into train and test. We do this first to prevent our test data from intermixing with our training data which could lead to overfitting of our model.
+
+```{r}
+set.seed(123)
+train_index <- sample(seq_len(nrow(telco_df)), size = 0.7*nrow(telco_df))
+
+train_data <- telco_df[train_index, ]
+test_data <- telco_df[-train_index, ]
+```
+
+Narrowing down our 21 variables to keep only the ones that would be useful for our logistic model, we use stepwise selection (both backward/forward selection) to allow for a dynamic elimination process on our training data.
+
+**Will: Including interaction variables from what was seen in the charts.**
+
+```{r}
+full_model <- glm(Churn ~ . + tenure*TotalCharges + MonthlyCharges*InternetService - TotalCharges, data = train_data, family = 'binomial')
+summary(full_model)
+```
+
+**Will: going to get predictions and evals before and after selection, so we can see changes.**
+
+```{r}
+full_pred_probs <- predict(full_model, newdata = test_data, type = "response")
+full_pred_class <- as.factor(ifelse(full_pred_probs > 0.5, 1, 0))
+```
+
+```{r}
+confusionMatrix(full_pred_class, test_data$Churn, positive = '1')
+```
+
+
+```{r}
+step_model <- step(full_model, direction = "both")
+```
+
+The results of running our stepwise selection was that 12 out of 21 variables were determined to be important predictors to customer churn. Predictors that were dropped as insignificant appeared to be a lot of demographic type such as: SeniorCitizen, gender, and partner. The really important predictors appeared to be: Service usage variables: MultipleLines, InternetService, OnlineBackup, DeviceProtection, StreamingTV, StreamingMovies Contract/payment types: Contract, PaperlessBilling, PaymentMethod Tenure MonthlyCharges. **Will adding to the end here: Additionally, the InternetServices and MonthlyCharges interaction variable is removed during our selection, despite what was seen graphically. This could be due to maintaining each of those variables in the dataset before fitting, and that the interaction effect just was not as significant as the individual factors.**
+
+Running a summary of the step_model on the training data
+
+```{r}
+summary(step_model)
+```
+
+Before running our model on the test data, we'll perform some Odds Ratio on the step_model using the training data to further explain how each variable affects the likelihood of churn...
+
+**My changes changed some of these values very slightly.**
+
+```{r}
+# odds ratios
+exp(coef(step_model))
+
+# odds ratios + confidence intervals
+exp(cbind(effect = coef(step_model), confint(step_model)))
+```
+
+**Will: Made some slight adjustments to the table. After my above changes the coefficient values changed slightly for several variables, and also I added to the interpretation column, so that it included the base level for all the factor variables. For example, Fiber optic users are 12x more likely than those with DSL, because DSL is the "base" level for InternetService that the other InternetService variables are compared to. You can tell that's the case because there is no InternetServiceDSL coefficient, even though that category is present in the data. Also exp(beta) isn't the odds or odds ratio, but how a variable effects the odds based on a one-unit increase/ presence of categorical variable. Also also I'm including tenure:TotalCharges interaction variable in the table, because it helps for some narrative stuff later in the wald test section.**
+
+Interpretation:
+
+We know that...
+
+-   if the variables effect ($e^{\beta}$) on the odds is \> than 1 : The variable (predictor) increases the odds of customer churn
+
+| Predictor                     | Odds Effect     | Interpretation                                                                            |
+|:------------------------------|:----------------|:------------------------------------------------------------------------------------------|
+| MultipleLinesYes              | 1.99            | Having multiple lines nearly **doubles** churn odds.                                      |
+| InternetServiceFiber optic    | 11.63           | Fiber optic users are nearly **12x more likely** to churn than those with DSL.            |
+| OnlineBackupYes               | 1.26            | Customers with online backup are **26% more likely** to churn.                            |
+| DeviceProtectionYes           | 1.38            | Customers with device protection are **38% more likely** to churn.                        |
+| StreamingTVYes                | 2.47            | Streaming TV users are **2.5x more likely** to churn.                                     |
+| StreamingMoviesYes            | 2.55            | Streaming Movies users are **2.6x more likely** to churn.                                 |
+| PaperlessBillingYes           | 1.34            | Paperless billing customers are **34% more likely** to churn.                             |
+| PaymentMethodElectronic check | 1.26            | Paying by electronic check increases churn odds by over **25%** compared to Bank Transfer.|
+| tenure:TotalCharges           | 1 + 3.87e-06    | As both tenure and Total Charges increase, the odds of churn increase by a small amount.  |
+
+-  if the variables effect ($e^{\beta}$) on the odds is less than 1 : The variable (predictor) decreases the odds of customer churn
+
+| Predictor                 | Odds Effect     | Interpretation                                                                        |
+|:--------------------------|:----------------|:--------------------------------------------------------------------------------------|
+| DependentsYes             | 0.81            | Customers with dependents are **19% less likely** to churn than those without.        |
+| InternetServiceNo         | 0.10            | Customers with no internet service are **much less likely** to churn than those with. |
+| ContractOne year          | 0.45            | One-year contract customers are **55% less likely** to churn than month to month.     |
+| ContractTwo year          | 0.19            | Two-year contract customers are **81% less likely** to churn than month to month.     |
+| PaymentMethodMailed check | 0.83            | Paying by mailed check slightly **reduces** churn risk compared to Bank Transfer.     |
+| MonthlyCharges            | 0.94            | Slight effect --- higher monthly charges very slightly **decrease** churn risk.       |
+
+Now to try our model on the test data..
+
+```{r}
+pred_probs <- predict(step_model, newdata = test_data, type = "response")
+pred_class <- ifelse(pred_probs > 0.5, 1, 0) %>% as.factor()
+```
+
+and evaluate the performance...
+
+```{r}
+confusionMatrix(pred_class, test_data$Churn, positive = '1')
+```
+
+Interpretation of model evaluation:
+
+The logistic regression model achieved an 81.5% accuracy on the test set. Precision was relatively strong at 69.1%, meaning when the model predicts churn, it is usually correct. However, the recall was 55.2%, indicating that about half of true churners were correctly identified. Overall, the model provides valuable insights for targeting at-risk customers, but improvements could be made to capture more churn cases.  
+
+**Will: adding to the above so that it includes sensitivity and specificity, since that is what the professor mostly talked about.**  
+The logistic regression model achieved an 81.9% accuracy on the test set. Precision was relatively strong at 70.7%, meaning when the model predicts churn, it is usually correct. However, the recall/sensitivity was 54.6%, indicating that only about half of true churners were correctly identified. Specificity, or the rate at which non-churners were identified, performed quite well at 91.81%. These results can at least partially be attributed to the imbalanced nature of our response variable: fewer customers in the dataset churned than didn't. Overall, the model provides valuable insights for targeting at-risk customers and the factors that influence, but improvements could be made to better predict churn cases.  
+
+#JUST SEEING IF I CAN MAKE A BETTER MODEL FROM THIS POINT FORWARD.
+
+Trying out lowering the threshold to 0.4 instead
+
+```{r}
+adj_pred_class <- ifelse(pred_probs > 0.4, 1, 0) %>% as.factor()
+
+```
+
+```{r}
+confusionMatrix(adj_pred_class, test_data$Churn, positive = '1')
+```
+
+Interpretation after dropping threshold:
+
+By adjusting the decision threshold from 0.5 to 0.4, we did improve the model's ability to identify churners --- increased the recall from 55% to 67%. The trade-off was a small reduction in precision, but overall, the model became more effective at detecting customers who are at risk of leaving. The F1 Score also improved, indicating a better balance between precision and recall.
+
+
+### Wald test stuff
+
+This first part initiates a function I created for the third exercise. Basically it performs the Wald test with the confidence interval method, then gives the results graphically on a number line.
+
+```{r echo=FALSE}
+wald_numline_twosided <- function(beta, beta_se, beta_index, variable = 'the variable', alpha=0.05, test_location = 0) {
+  
+  Zcrit <- qnorm(1-{{alpha}}/2)
+  lowBnd <- {{beta}} - (Zcrit*{{beta_se}})
+  highBnd <- {{beta}} + (Zcrit*{{beta_se}})
+  
+  walddf <- data.frame(bounds = c(lowBnd, highBnd),
+           zeroes = c(0,0),
+           labels = c('Lower\nBound', 'Upper\nBound'))
+  
+  betaExp <- TeX(paste0('$\\hat{\\beta}_{',{{beta_index}},'}$'))
+  NullHypExp <- TeX(paste0('$H_{0}:\\ \\hat{\\beta}_{',{{beta_index}},'} = ',{{test_location}}, '$'))
+  
+  resultRange <- ifelse({{test_location}} > lowBnd && {{test_location}} < highBnd, 'in', 'out')
+  
+  titleStr <- paste0('Wald Test for ', {{variable}})
+  
+  resultStr <- paste0({{test_location}}, ' Falls ', {{resultRange}}, 'side of the lower and upper bounds for our test')
+  
+  plot <- ggplot(data = walddf, aes(x=bounds, y=zeroes)) + 
+    geom_line() +
+    geom_text(aes(label = labels), vjust = -1.1) +
+    geom_text(aes(label = sprintf('%.4f', bounds)), vjust = 3.5) +
+    geom_point(shape = 108, size = 10) +
+    geom_point(aes(x = {{beta}}, y=0), shape = 108, size = 10) +
+    geom_text(aes(x= {{beta}}, y=0), label = betaExp, parse = TRUE, vjust = -1.3) +
+    geom_text(aes(x= {{beta}}, y=0), label =  sprintf('%.4f', {{beta}}), vjust = 3.5) +
+    geom_point(aes(x={{test_location}}, y=0, color = 'red'), shape = 18, size = 3) +
+    theme_void() +
+    labs(title = element_text(titleStr), subtitle = element_text(resultStr)) +
+    theme(plot.title = element_text(hjust = 0.05), 
+          plot.subtitle = element_text(hjust = 0.07), 
+          legend.position = c(0.09, 0.96), 
+          legend.background = element_rect(linetype=0)) +
+    guides(fill=guide_legend(nrow=1)) +
+    scale_color_identity(name = NULL, labels = NullHypExp, guide = 'legend')
+  returnlist <- list(plot, lowBnd, highBnd, {{beta}}, Zcrit)
+  return(returnlist)
+}
+```
+
+For it to work easily I need to save the model summary results to a variable:
+
+```{r}
+step_summary <- summary(step_model)
+```
+
+Performing the test on all coefficients. We dont need all of them but we can pick out our favorites once they're done.  
+
+```{r warning=FALSE}
+waldlist <- lapply(row_number(step_summary$coefficients[,1]),
+       function(x) {
+       wald_numline_twosided(step_summary$coefficients[,1][x][[1]],step_summary$coefficients[,2][x][[1]],x-1, variable = names(step_summary$coefficients[,1][x]), alpha = 0.05)
+       }
+)
+```
+
+
+```{r warning=FALSE}
+for (x in seq(length(waldlist))){
+  print(waldlist[[x]][[1]])
+}
+```
+
+No here are the assumptions, hypotheses, test statistic, and Type I errors:  
+
+  For logistic regression, the model can be written in terms of a probability. The general form of the model is as follows:  
+  
+  $E(Y_{i}) := \hat{p_{i}} = \frac{1}{1 + e^{-(\beta_{0}+\beta_{1}x_{ij}+...+\beta_{k}x_{ik})}}$  
+  
+  Where $Y$ has the following assumptions:  
+  
+  $Y_{i} \sim Bernoulli(p_{i})$  
+  
+  Where p is the probability of our event.
+  
+  To perform the two-sided Wald test for effect we have the following null and alternative hypothesis:  
+  
+  $H_{0}: \beta_{j} = 0$  
+  $H_{1}: \beta_{j} \neq 0$  
+  
+  The probability of a Type I error, that is rejecting the null hypothesis when it is true, is as follows:  
+  
+  $\alpha = 0.05$  
+  
+  Since this is a two-sided test for effect we will utilize $\frac{\alpha}{2}$ and a build a 95% confidence interval to determine if 0 falls within our range.  
+  The Test has the following assumption:  
+  
+  $Z_{obs} = \frac{\hat{\beta_{j}}}{se(\hat{\beta_{j}})} \sim N(0,1)$  
+  
+  So we will use the Standard Normal distribution to conduct our test, with the confidence interval taking the following form:  
+  
+  $\hat{\beta}_{0} \pm Z_{\frac{\alpha}{2}}se(\hat{\beta}_{0})$  
+  $\therefore$ if $0 \in (\hat{\beta}_{0} - Z_{\frac{\alpha}{2}}se(\hat{\beta}_{0}),\space \hat{\beta}_{0} + Z_{\frac{\alpha}{2}}se(\hat{\beta}_{0}))$ then we would fail to reject the null hypothesis.  
+
+
+And the conclusions for some of the more interesting/important variables:  
+
+```{r warning=FALSE}
+waldlist[[12]][[1]]
+```
+
+  For InternetServiceFiber optic, that is, when a customer has Fiber Optic internet service instead of DSL, the Beta coefficient is `r waldlist[[12]][[4]]`, with a lower bound of `r waldlist[[12]][[2]]` and upper bound of `r waldlist[[12]][[3]]` for the confidence interval. Since the 95% confidence interval does not include 0, we would reject the null hypothesis and conclude that there is a significant effect on the probability of churn when a customer chooses Fiber Optic over DSL, holding all other variables constant.
+
+  
+```{r warning=FALSE}
+waldlist[[10]][[1]]
+```
+
+  For InternetServiceNo, that is, when a customer has no internet service, the Beta coefficient is `r waldlist[[10]][[4]]` when compared with DSL, with a lower bound of `r waldlist[[10]][[2]]` and upper bound of `r waldlist[[10]][[3]]` for the confidence interval. Since the 95% confidence interval does not include 0, we would reject the null hypothesis and conclude that there is a significant effect on the probability of churn when a customer has no internet service compared to one that has DSL, holding all other variables constant.  
+  
+
+```{r warning=FALSE}
+waldlist[[9]][[1]]
+```
+  For PaymentMethodMailed check, that is, when a customer pays for their services via a check in the mail, the Beta coefficient is `r waldlist[[9]][[4]]` when compared with those that pay via bank transfer, with a lower bound of `r waldlist[[9]][[2]]` and upper bound of `r waldlist[[9]][[3]]` for the confidence interval. Since the 95% confidence interval includes 0, we would fail to reject the null hypothesis and conclude that there is not a significant effect on the probability of churn when a customer pays their bill via mailed check compared to one that pays via automatic bank transfer, holding all other variables constant.  
+
+
+```{r warning=FALSE}
+waldlist[[11]][[1]]
+```
+
+  For PaymentMethodElectronic check, that is, when a customer pays for their services via an electronic check, the Beta coefficient is `r waldlist[[11]][[4]]` when compared with those that pay via automatic bank transfer, with a lower bound of `r waldlist[[11]][[2]]` and upper bound of `r waldlist[[11]][[3]]` for the confidence interval. Since the 95% confidence interval does not include 0, we would reject the null hypothesis and conclude that there is a significant effect on the probability of churn when a customer pays for their services via an electronic check compared to one that pays via automatic bank transfer, holding all other variables constant.  
+  
+
+```{r warning=FALSE}
+waldlist[[7]][[1]]
+```
+
+  For tenure, that is, the number of months a customer has stayed with the company, the Beta coefficient is `r waldlist[[7]][[4]]` when compared with DSL, with a lower bound of `r waldlist[[7]][[2]]` and upper bound of `r waldlist[[7]][[3]]` for the confidence interval. Since the 95% confidence interval does not include 0, we would reject the null hypothesis and conclude that there is a significant effect on the probability of churn for every increase of a month in tenure, holding all other variables constant.  
+  
+```{r warning=FALSE}
+waldlist[[5]][[1]] #note, values are so small they does not display graphically well
+```
+
+  For tenure:TotalCharges, that is, the interaction between number of months a customer has stayed with the company and how much they have paid in total charges, the Beta coefficient is `r waldlist[[5]][[4]]` when compared with DSL, with a lower bound of `r waldlist[[5]][[2]]` and upper bound of `r waldlist[[5]][[3]]` for the confidence interval. Since the 95% confidence interval does not include 0, we would reject the null hypothesis and conclude that there is a significant effect on the probability of churn for every increase of a month in tenure and/or dollar in total charges, holding all other variables constant.  
+  **Note: I wanted to show this one because the previous table made it seem unimportant, but because it's an interaction variable and therefore multiplicative, the units increase very quickly. That's why our beta coefficient is so small but the variable is still significant. Also, it has an inverse effect compared to tenure, meaning if both the more tenure and TotalCharges increase together, the likelihood of churn increases. Naturally these will increase together, but if they increase moreso than they do for others, i.e. if rates increase for some more than others, they will be more likely to churn.**
+
+You probably get the idea from here, we definitely don't need to include all of these, but just to make it easy to pair it with some conclusion if you like any of them. Any of the others can be recreated if need be, just may have to play with the indices to get the right ones if you want to recreate one, or just reach out to ya boi Will and I'll take care of it.
