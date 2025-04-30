@@ -1,0 +1,2125 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.555">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="William Hyltin, Holly Milazzo, Tim Harrison">
+
+<title>Final Project</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="final-project-sandbox-combined_files/libs/clipboard/clipboard.min.js"></script>
+<script src="final-project-sandbox-combined_files/libs/quarto-html/quarto.js"></script>
+<script src="final-project-sandbox-combined_files/libs/quarto-html/popper.min.js"></script>
+<script src="final-project-sandbox-combined_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="final-project-sandbox-combined_files/libs/quarto-html/anchor.min.js"></script>
+<link href="final-project-sandbox-combined_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="final-project-sandbox-combined_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="final-project-sandbox-combined_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="final-project-sandbox-combined_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="final-project-sandbox-combined_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Final Project</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>William Hyltin, Holly Milazzo, Tim Harrison </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, here, latex2exp, caret, skimr, corrplot, patchwork)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>telco_df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">'data'</span>, <span class="st">'Telco-Customer-Churn.csv'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(telco_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in attr(x, "align"): 'xfun::attr()' is deprecated.
+Use 'xfun::attr2()' instead.
+See help("Deprecated")
+Warning in attr(x, "align"): 'xfun::attr()' is deprecated.
+Use 'xfun::attr2()' instead.
+See help("Deprecated")
+Warning in attr(x, "align"): 'xfun::attr()' is deprecated.
+Use 'xfun::attr2()' instead.
+See help("Deprecated")</code></pre>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">telco_df</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">7032</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">21</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">17</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 13%">
+<col style="width: 18%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">customerID</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7032</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">gender</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Partner</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dependents</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PhoneService</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MultipleLines</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">InternetService</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">OnlineSecurity</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">OnlineBackup</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DeviceProtection</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">TechSupport</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">StreamingTV</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">StreamingMovies</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Contract</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PaperlessBilling</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PaymentMethod</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Churn</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 10%">
+<col style="width: 14%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 6%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">SeniorCitizen</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.16</td>
+<td style="text-align: right;">0.37</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">▇▁▁▁▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">tenure</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">32.42</td>
+<td style="text-align: right;">24.55</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">9.00</td>
+<td style="text-align: right;">29.00</td>
+<td style="text-align: right;">55.00</td>
+<td style="text-align: right;">72.00</td>
+<td style="text-align: left;">▇▃▃▃▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MonthlyCharges</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">64.80</td>
+<td style="text-align: right;">30.09</td>
+<td style="text-align: right;">18.25</td>
+<td style="text-align: right;">35.59</td>
+<td style="text-align: right;">70.35</td>
+<td style="text-align: right;">89.86</td>
+<td style="text-align: right;">118.75</td>
+<td style="text-align: left;">▇▅▆▇▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">TotalCharges</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2283.30</td>
+<td style="text-align: right;">2266.77</td>
+<td style="text-align: right;">18.80</td>
+<td style="text-align: right;">401.45</td>
+<td style="text-align: right;">1397.47</td>
+<td style="text-align: right;">3794.74</td>
+<td style="text-align: right;">8684.80</td>
+<td style="text-align: left;">▇▂▂▂▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>telco_df <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Churn)) <span class="sc">+</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">'Distribution of Churn'</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">'Our response variable is imbalanced, with far fewer customers churned than otherwise.'</span>) <span class="sc">+</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>telco_df <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">SeniorCitizen =</span> <span class="fu">as.factor</span>(SeniorCitizen)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_if</span>(is.numeric) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">corrplot</span>(<span class="at">method =</span> <span class="st">'number'</span>, <span class="at">number.cex =</span> <span class="fl">0.6</span>, <span class="at">tl.cex =</span> <span class="fl">0.7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Interpretation of correlation matrix: Tenure and TotalCharges have strong positive correlation (0.83) but not surprisint since the longer a customer has been with the company, the more money they’ve been billed overall - will not use both of these variables in the model</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>telco_df <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">SeniorCitizen =</span> <span class="fu">as.factor</span>(SeniorCitizen)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_if</span>(is.numeric) <span class="sc">%&gt;%</span> <span class="fu">plot</span>(.)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Plotting continuous variables against each other we can see the strong correlation between total charges and monthly charges even more clearly. One last check, just to be sure there isn’t some value in including it.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>telco_df <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> tenure, <span class="at">y =</span> TotalCharges, <span class="at">color =</span> Churn)) <span class="sc">+</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>() <span class="sc">+</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">'Tenure and Total Charges Correlation'</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">'While not perfectly separable, the two variables together help identify churn.'</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">'Tenure'</span>, <span class="at">y =</span> <span class="st">'Total Charges'</span>) <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>boxlist <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">colnames</span>(<span class="fu">select_if</span>(telco_df, is.numeric)),</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>       <span class="cf">function</span>(col) {</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ggplot</span>(telco_df,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">y =</span> .data[[col]], <span class="at">x =</span> .data<span class="sc">$</span>Churn)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>() <span class="sc">+</span> <span class="fu">ggtitle</span>(col)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>       }</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>boxlist[[<span class="dv">2</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>boxlist[[<span class="dv">3</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>boxlist[[<span class="dv">4</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The four previous plots are more useful, we may not need to include our boxplots at all, but there here if you want them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>denslist <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">colnames</span>(<span class="fu">select_if</span>(telco_df, is.numeric)),</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>       <span class="cf">function</span>(col) {</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ggplot</span>(telco_df,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">x =</span> .data[[col]], <span class="at">fill =</span> .data<span class="sc">$</span>Churn, <span class="at">color =</span> .data<span class="sc">$</span>Churn)) <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">stat =</span> <span class="st">'bin'</span>, <span class="at">bins=</span><span class="dv">20</span>) <span class="sc">+</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>           <span class="fu">ggtitle</span>(col) <span class="sc">+</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>           <span class="fu">theme_minimal</span>()</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>       }</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="st">'AAABBB</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="st">           #CCCC#'</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>denslist[[<span class="dv">2</span>]] <span class="sc">+</span> denslist[[<span class="dv">3</span>]] <span class="sc">+</span> denslist[[<span class="dv">4</span>]] <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>, <span class="at">design =</span> design)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>These I have here so we can explain why a regular anova test wouldn’t work. Which is because they don’t folllow a normal distribution, and they (mostly) don’t have the same distribution across levels of Churn.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>telco_df <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> MonthlyCharges, <span class="at">fill =</span> InternetService, <span class="at">color =</span> InternetService)) <span class="sc">+</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">stat =</span> <span class="st">'bin'</span>, <span class="at">binwidth =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">'Monthly Charges and Internet Service'</span>) <span class="sc">+</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">'Internet Service divides Monthly charge distributions into three groups'</span>) <span class="sc">+</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Additionally, Monthly Charges is broken up into three different groups based on what they have for internet service. Good for explaining why interaction variables would be included later.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>histlist <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">colnames</span>(<span class="fu">select_if</span>(telco_df, is.numeric)),</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>       <span class="cf">function</span>(col) {</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ggplot</span>(telco_df,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">x =</span> .data[[col]])) <span class="sc">+</span> <span class="fu">geom_histogram</span>() <span class="sc">+</span> <span class="fu">ggtitle</span>(col)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>       }</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>histlist[[<span class="dv">2</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>histlist[[<span class="dv">3</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>histlist[[<span class="dv">4</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-14-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Don’t need these unles you have something you want for them, the denisty plots cover the distributions pretty nicely.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>barlist <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">colnames</span>(<span class="fu">select_if</span>(telco_df[<span class="sc">!</span><span class="fu">colnames</span>(telco_df) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">'Churn'</span>, <span class="st">'customerID'</span>)], is.character)),</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>       <span class="cf">function</span>(col) {</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ggplot</span>(telco_df,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">x =</span> .data[[col]], <span class="at">fill =</span> .data<span class="sc">$</span>Churn)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>           <span class="fu">ggtitle</span>(col) <span class="sc">+</span> </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>           <span class="fu">theme</span>(<span class="at">legend.position.inside =</span> <span class="fu">c</span>(<span class="fl">0.8</span>,<span class="fl">0.8</span>), <span class="at">legend.background =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>           <span class="fu">theme_minimal</span>()</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>       }</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (x <span class="cf">in</span> <span class="fu">seq</span>((<span class="fu">length</span>(<span class="fu">colnames</span>(<span class="fu">select_if</span>(telco_df[<span class="sc">!</span><span class="fu">colnames</span>(telco_df) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">'Churn'</span>, <span class="st">'customerID'</span>)], is.character))) <span class="sc">+</span><span class="dv">1</span>)<span class="sc">/</span><span class="dv">2</span>)){</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(x <span class="sc">!=</span> <span class="dv">8</span>,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">print</span>((barlist[[<span class="dv">2</span><span class="sc">*</span>x <span class="sc">-</span> <span class="dv">1</span>]] <span class="sc">+</span> barlist[[<span class="dv">2</span><span class="sc">*</span>x]]) <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>)),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">print</span>(barlist[[<span class="dv">2</span><span class="sc">*</span>x <span class="sc">-</span> <span class="dv">1</span>]])</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-16-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-16-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-16-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-16-6.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-16-7.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-16-8.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We don’t need all of these, see below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>((barlist[[<span class="dv">15</span>]] <span class="sc">+</span> <span class="fu">coord_flip</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>))) <span class="sc">+</span> (barlist[[<span class="dv">14</span>]] <span class="sc">+</span> <span class="fu">coord_flip</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>)))) <span class="sc">/</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  ((barlist[[<span class="dv">6</span>]] <span class="sc">+</span> <span class="fu">coord_flip</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>))) <span class="sc">+</span>(barlist[[<span class="dv">13</span>]] <span class="sc">+</span> <span class="fu">coord_flip</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>)))) <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>I picked out four barplots that I thought looked significant and patched them together. Payment method has larger churn when payment is by electronic check, paperless billing also looks like it has more churn, Fiber Optic also looks like it has greater churn, and contracts churn more often when the customer is month to month (because they aren’t locked into a contract). I’m not too wild about the way this looks with the four together, just trying to save space. If you want to break them up you can just run barlist[[15]] + coord_flip(), and just replace the 15 with either 6, 13, or 14 and that will get you any one of the four.</p>
+<section id="statistical-tests" class="level2">
+<h2 class="anchored" data-anchor-id="statistical-tests">Statistical Tests</h2>
+<p>ANOVA is not likely appropriate for any of these variables, primarily due to the non-normality seen in the histograms/density plots, but we have it in my file if we need it.<br>
+Wilcoxon Rank Sum could require same shape and spread, just different location, however this is a weak assumption.<br>
+Sign test is for one sample or paired samples.<br>
+Wilcoxon sign rank requires distribution symmetry, and one sample or paired.<br>
+Wilcoxon rank sum/two-sample test: two samples don’t need to be same size, non parametric alt to two sample t-test. Could work.<br>
+Kruskal-Wallis Test: generalize version of rank sum, for more than 2 samples, so no applicable for response variable. Could be used for continuous explanatory x categorical explanatory.</p>
+<section id="wilcoxon-rank-sum-tests" class="level3">
+<h3 class="anchored" data-anchor-id="wilcoxon-rank-sum-tests">Wilcoxon Rank Sum Tests</h3>
+<p>We perform the Wilcoxon Rank Sum test due to the nature of our continuous variables. For tenure, MonthlyCharges, and TotalCharges, the distributions are non-normal and have potential differences in spread. Some argue we may be able to utilize anova, due to the large sample size in both distributions, however Non-parametric methods may offer more powerful results given the violations of assumptions. The Wilcoxon Rank sum test is the most appropriate for all three variables, due to the varying sizes of the observations across the different class levels of Churn; we would not be able to perform paired tests like the sign rank test.<br>
+Note that the structure of these tests will be that we will use our binary response variable to separate our two samples. We will then test the distributions/statistics of our continuous explanatory variable. This may seem counterintuitive, but the intent is this: If we have differences in our explanatory variable distribution when a customer is churned vs not churned, then the variable would likely have an effect on the prediction of a customer churning.</p>
+<p><strong>Assumptions</strong><br>
+- The samples do not need to be the same size<br>
+- Independent Samples<br>
+- The samples should have the same distribution (weak assumption)</p>
+<p><strong>Hypotheses</strong><br>
+<span class="math inline">\(H_{0}:\)</span> The two samples come from the same distribution.<br>
+<span class="math inline">\(H_{1}:\)</span> The two samples do not come from the same distribution.</p>
+<p><strong>Type I error</strong><br>
+<span class="math inline">\(\alpha = 0.05\)</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>wilcoxdf0 <span class="ot">&lt;-</span> telco_df <span class="sc">%&gt;%</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tenure, TotalCharges, MonthlyCharges, Churn) <span class="sc">%&gt;%</span> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Churn <span class="sc">==</span> <span class="st">'No'</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>wilcoxdf1 <span class="ot">&lt;-</span> telco_df <span class="sc">%&gt;%</span> </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tenure, TotalCharges, MonthlyCharges, Churn) <span class="sc">%&gt;%</span> </span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Churn <span class="sc">==</span> <span class="st">'Yes'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>wilten <span class="ot">&lt;-</span> <span class="fu">wilcox.test</span>(wilcoxdf1<span class="sc">$</span>tenure, wilcoxdf0<span class="sc">$</span>tenure, <span class="at">paired =</span> <span class="cn">FALSE</span>, <span class="at">alternative =</span> <span class="st">'two.sided'</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>wilten</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon rank sum test with continuity correction
+
+data:  wilcoxdf1$tenure and wilcoxdf0$tenure
+W = 2494979, p-value &lt; 2.2e-16
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
+</div>
+<p>For tenure, we get a W value of 2.494979^{6}, which results in a p-value of 6.0430466^{-211}. Against an alpha level of 0.05, we reject the null hypotheses that the tenure distribution of customers that have churned is the same as the distribution for those that have not churned.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>wilmo <span class="ot">&lt;-</span> <span class="fu">wilcox.test</span>(wilcoxdf1<span class="sc">$</span>MonthlyCharges, wilcoxdf0<span class="sc">$</span>MonthlyCharges, <span class="at">paired =</span> <span class="cn">FALSE</span>, <span class="at">alternative =</span> <span class="st">'two.sided'</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>wilmo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon rank sum test with continuity correction
+
+data:  wilcoxdf1$MonthlyCharges and wilcoxdf0$MonthlyCharges
+W = 5986148, p-value &lt; 2.2e-16
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
+</div>
+<p>For Monthly Charges, we get a W value of 5.9861485^{6}, which results in a p-value of 8.467195^{-54}. Against an alpha level of 0.05, we reject the null hypotheses that the Monthly Charges distribution of customers that have churned is the same as the distribution for those that have not churned.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>wiltot <span class="ot">&lt;-</span> <span class="fu">wilcox.test</span>(wilcoxdf1<span class="sc">$</span>TotalCharges, wilcoxdf0<span class="sc">$</span>TotalCharges, <span class="at">paired =</span> <span class="cn">FALSE</span>, <span class="at">alternative =</span> <span class="st">'two.sided'</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>wiltot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon rank sum test with continuity correction
+
+data:  wilcoxdf1$TotalCharges and wilcoxdf0$TotalCharges
+W = 3360665, p-value &lt; 2.2e-16
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
+</div>
+<p>For Total Charges, we get a W value of 3.360665^{6}, which results in a p-value of 1.9959849^{-84}. Against an alpha level of 0.05, we reject the null hypotheses that the Total Charges distribution of customers that have churned is the same as the distribution for those that have not churned.</p>
+<p>We can see that the continuous variables all have different distributions depending on whether the customer has churned or not. Given this, as well as what was seen in the charts, it is likely we will see some sort of affect on the probability in Churn when we fit a model later on. We do still need to be aware of multicollinearity, particulary between tenure and Total Charges. Our variable selection may take care of this, but still something we should watch out for.</p>
+<p>We know we are going to use ‘Churn’ as our response (Y) variable, so we’re going to transform it where ‘No’=0 and ‘Yes’=1</p>
+<p><strong>Will, also making this a factor variable, going to use the confusionmatrix function from caret so I believe it needs to be a factor</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>telco_df<span class="sc">$</span>Churn <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(telco_df<span class="sc">$</span>Churn <span class="sc">==</span> <span class="st">"Yes"</span>, <span class="dv">1</span>, <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="fu">as.factor</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And dropping any obviously un-useful variables such as ‘CustomerID’ and ‘TotalCharges’</p>
+<p><strong>Will: I’m going to put TotalCharges back in, but mostly so we can get the interaction with tenure.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>telco_df <span class="ot">&lt;-</span> telco_df <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>customerID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Converting character columns to factors</p>
+<p><strong>Will: SeniorCitizen also needs to be converted to a factor, so doing that here.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>telco_df <span class="ot">&lt;-</span> telco_df <span class="sc">%&gt;%</span> </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.character, as.factor) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">SeniorCitizen =</span> <span class="fu">as.factor</span>(SeniorCitizen))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Will: One last cleaning step, this one is kind of a weird one. We were getting some weird errors in the model fits, this is due to perfect correlation between some of the variables. For example, people who do not get internet service won’t have online security, so those variables will always align. To fix this, we’ll create dummy variables, and remove the ones that are perfectly correlated with InternetService = No and PhoneService = No</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>dummify <span class="ot">&lt;-</span> <span class="fu">dummyVars</span>(<span class="st">'~ MultipleLines + OnlineSecurity + OnlineBackup + DeviceProtection + TechSupport + StreamingTV + StreamingMovies'</span>, <span class="at">data =</span> telco_df, <span class="at">sep =</span> <span class="st">''</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>dummydf <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">predict</span>(dummify, <span class="at">newdata =</span> telco_df))</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>telco_df <span class="ot">&lt;-</span> <span class="fu">cbind</span>(telco_df, dummydf) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>MultipleLines, <span class="sc">-</span>OnlineSecurity, <span class="sc">-</span>OnlineBackup, <span class="sc">-</span>DeviceProtection, <span class="sc">-</span>TechSupport, <span class="sc">-</span>StreamingTV, <span class="sc">-</span>StreamingMovies) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">contains</span>(<span class="st">'.service'</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">ends_with</span>((<span class="st">'No'</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Before moving into any stepwise selection of our variables, we first split our data into train and test. We do this first to prevent our test data from intermixing with our training data which could lead to overfitting of our model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>train_index <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(telco_df)), <span class="at">size =</span> <span class="fl">0.7</span><span class="sc">*</span><span class="fu">nrow</span>(telco_df))</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> telco_df[train_index, ]</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>test_data <span class="ot">&lt;-</span> telco_df[<span class="sc">-</span>train_index, ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Narrowing down our 21 variables to keep only the ones that would be useful for our logistic model, we use stepwise selection (both backward/forward selection) to allow for a dynamic elimination process on our training data.</p>
+<p><strong>Will: Including interaction variables from what was seen in the charts.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>full_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(Churn <span class="sc">~</span> . <span class="sc">+</span> tenure<span class="sc">*</span>TotalCharges <span class="sc">+</span> MonthlyCharges<span class="sc">*</span>InternetService <span class="sc">-</span> TotalCharges, <span class="at">data =</span> train_data, <span class="at">family =</span> <span class="st">'binomial'</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(full_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Churn ~ . + tenure * TotalCharges + MonthlyCharges * 
+    InternetService - TotalCharges, family = "binomial", data = train_data)
+
+Coefficients:
+                                            Estimate Std. Error z value
+(Intercept)                                1.798e+00  9.914e-01   1.814
+genderMale                                 6.546e-03  7.713e-02   0.085
+SeniorCitizen1                             1.590e-02  1.006e-01   0.158
+PartnerYes                                 3.136e-02  9.259e-02   0.339
+DependentsYes                             -2.273e-01  1.067e-01  -2.130
+tenure                                    -5.175e-02  4.962e-03 -10.429
+PhoneServiceYes                            5.806e-01  7.858e-01   0.739
+InternetServiceFiber optic                 1.384e+00  1.088e+00   1.272
+InternetServiceNo                         -1.661e+00  1.961e+00  -0.847
+ContractOne year                          -7.929e-01  1.307e-01  -6.065
+ContractTwo year                          -1.603e+00  2.162e-01  -7.416
+PaperlessBillingYes                        2.937e-01  8.941e-02   3.285
+PaymentMethodCredit card (automatic)      -1.584e-01  1.339e-01  -1.183
+PaymentMethodElectronic check              2.310e-01  1.111e-01   2.079
+PaymentMethodMailed check                 -1.921e-01  1.361e-01  -1.412
+MonthlyCharges                            -5.923e-02  3.838e-02  -1.543
+MultipleLinesYes                           6.175e-01  2.089e-01   2.956
+OnlineSecurityYes                         -1.403e-01  2.153e-01  -0.652
+OnlineBackupYes                            1.544e-01  2.094e-01   0.738
+DeviceProtectionYes                        2.418e-01  2.097e-01   1.153
+TechSupportYes                            -1.109e-02  2.155e-01  -0.051
+StreamingTVYes                             7.490e-01  3.901e-01   1.920
+StreamingMoviesYes                         7.824e-01  3.908e-01   2.002
+tenure:TotalCharges                        3.535e-06  7.925e-07   4.460
+InternetServiceFiber optic:MonthlyCharges  1.034e-02  8.237e-03   1.255
+InternetServiceNo:MonthlyCharges          -2.739e-02  7.883e-02  -0.347
+                                          Pr(&gt;|z|)    
+(Intercept)                                0.06969 .  
+genderMale                                 0.93236    
+SeniorCitizen1                             0.87445    
+PartnerYes                                 0.73483    
+DependentsYes                              0.03321 *  
+tenure                                     &lt; 2e-16 ***
+PhoneServiceYes                            0.45994    
+InternetServiceFiber optic                 0.20337    
+InternetServiceNo                          0.39721    
+ContractOne year                          1.32e-09 ***
+ContractTwo year                          1.20e-13 ***
+PaperlessBillingYes                        0.00102 ** 
+PaymentMethodCredit card (automatic)       0.23687    
+PaymentMethodElectronic check              0.03761 *  
+PaymentMethodMailed check                  0.15801    
+MonthlyCharges                             0.12273    
+MultipleLinesYes                           0.00312 ** 
+OnlineSecurityYes                          0.51449    
+OnlineBackupYes                            0.46078    
+DeviceProtectionYes                        0.24883    
+TechSupportYes                             0.95897    
+StreamingTVYes                             0.05487 .  
+StreamingMoviesYes                         0.04529 *  
+tenure:TotalCharges                       8.18e-06 ***
+InternetServiceFiber optic:MonthlyCharges  0.20951    
+InternetServiceNo:MonthlyCharges           0.72829    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 5701.5  on 4921  degrees of freedom
+Residual deviance: 4110.5  on 4896  degrees of freedom
+AIC: 4162.5
+
+Number of Fisher Scoring iterations: 6</code></pre>
+</div>
+</div>
+<p><strong>Will: going to get predictions and evals before and after selection, so we can see changes.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>full_pred_probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(full_model, <span class="at">newdata =</span> test_data, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>full_pred_class <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(<span class="fu">ifelse</span>(full_pred_probs <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(full_pred_class, test_data<span class="sc">$</span>Churn, <span class="at">positive =</span> <span class="st">'1'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction    0    1
+         0 1425  252
+         1  125  308
+                                          
+               Accuracy : 0.8213          
+                 95% CI : (0.8043, 0.8375)
+    No Information Rate : 0.7346          
+    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+                                          
+                  Kappa : 0.506           
+                                          
+ Mcnemar's Test P-Value : 8.622e-11       
+                                          
+            Sensitivity : 0.5500          
+            Specificity : 0.9194          
+         Pos Pred Value : 0.7113          
+         Neg Pred Value : 0.8497          
+             Prevalence : 0.2654          
+         Detection Rate : 0.1460          
+   Detection Prevalence : 0.2052          
+      Balanced Accuracy : 0.7347          
+                                          
+       'Positive' Class : 1               
+                                          </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>step_model <span class="ot">&lt;-</span> <span class="fu">step</span>(full_model, <span class="at">direction =</span> <span class="st">"both"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Start:  AIC=4162.47
+Churn ~ gender + SeniorCitizen + Partner + Dependents + tenure + 
+    PhoneService + InternetService + Contract + PaperlessBilling + 
+    PaymentMethod + MonthlyCharges + TotalCharges + MultipleLinesYes + 
+    OnlineSecurityYes + OnlineBackupYes + DeviceProtectionYes + 
+    TechSupportYes + StreamingTVYes + StreamingMoviesYes + tenure * 
+    TotalCharges + MonthlyCharges * InternetService - TotalCharges
+
+                                 Df Deviance    AIC
+- InternetService:MonthlyCharges  2   4112.2 4160.2
+- TechSupportYes                  1   4110.5 4160.5
+- gender                          1   4110.5 4160.5
+- SeniorCitizen                   1   4110.5 4160.5
+- Partner                         1   4110.6 4160.6
+- OnlineSecurityYes               1   4110.9 4160.9
+- OnlineBackupYes                 1   4111.0 4161.0
+- PhoneService                    1   4111.0 4161.0
+- DeviceProtectionYes             1   4111.8 4161.8
+&lt;none&gt;                                4110.5 4162.5
+- StreamingTVYes                  1   4114.2 4164.2
+- StreamingMoviesYes              1   4114.5 4164.5
+- Dependents                      1   4115.0 4165.0
+- MultipleLinesYes                1   4119.2 4169.2
+- PaperlessBilling                1   4121.3 4171.3
+- PaymentMethod                   3   4130.0 4176.0
+- tenure:TotalCharges             1   4130.5 4180.5
+- Contract                        2   4188.4 4236.4
+
+Step:  AIC=4160.24
+Churn ~ gender + SeniorCitizen + Partner + Dependents + tenure + 
+    PhoneService + InternetService + Contract + PaperlessBilling + 
+    PaymentMethod + MonthlyCharges + MultipleLinesYes + OnlineSecurityYes + 
+    OnlineBackupYes + DeviceProtectionYes + TechSupportYes + 
+    StreamingTVYes + StreamingMoviesYes + tenure:TotalCharges
+
+                                 Df Deviance    AIC
+- TechSupportYes                  1   4112.2 4158.2
+- gender                          1   4112.2 4158.2
+- SeniorCitizen                   1   4112.3 4158.3
+- Partner                         1   4112.3 4158.3
+- PhoneService                    1   4112.6 4158.6
+- OnlineSecurityYes               1   4112.7 4158.7
+- OnlineBackupYes                 1   4112.8 4158.8
+- DeviceProtectionYes             1   4113.6 4159.6
+- MonthlyCharges                  1   4114.2 4160.2
+&lt;none&gt;                                4112.2 4160.2
+- InternetService                 2   4117.2 4161.2
+- StreamingTVYes                  1   4116.0 4162.0
+- StreamingMoviesYes              1   4116.3 4162.3
++ InternetService:MonthlyCharges  2   4110.5 4162.5
+- Dependents                      1   4116.8 4162.8
+- MultipleLinesYes                1   4121.0 4167.0
+- PaperlessBilling                1   4122.9 4168.9
+- PaymentMethod                   3   4131.6 4173.6
+- tenure:TotalCharges             1   4139.0 4185.0
+- Contract                        2   4195.9 4239.9
+
+Step:  AIC=4158.25
+Churn ~ gender + SeniorCitizen + Partner + Dependents + tenure + 
+    PhoneService + InternetService + Contract + PaperlessBilling + 
+    PaymentMethod + MonthlyCharges + MultipleLinesYes + OnlineSecurityYes + 
+    OnlineBackupYes + DeviceProtectionYes + StreamingTVYes + 
+    StreamingMoviesYes + tenure:TotalCharges
+
+                                 Df Deviance    AIC
+- gender                          1   4112.3 4156.3
+- SeniorCitizen                   1   4112.3 4156.3
+- Partner                         1   4112.4 4156.4
+- OnlineSecurityYes               1   4113.2 4157.2
+- PhoneService                    1   4113.9 4157.9
+- OnlineBackupYes                 1   4113.9 4157.9
+&lt;none&gt;                                4112.2 4158.2
+- DeviceProtectionYes             1   4116.0 4160.0
++ TechSupportYes                  1   4112.2 4160.2
++ InternetService:MonthlyCharges  2   4110.5 4160.5
+- Dependents                      1   4116.8 4160.8
+- MonthlyCharges                  1   4121.9 4165.9
+- PaperlessBilling                1   4122.9 4166.9
+- StreamingTVYes                  1   4126.7 4170.7
+- PaymentMethod                   3   4131.7 4171.7
+- StreamingMoviesYes              1   4128.1 4172.1
+- InternetService                 2   4135.8 4177.8
+- MultipleLinesYes                1   4136.5 4180.5
+- tenure:TotalCharges             1   4139.0 4183.0
+- Contract                        2   4196.5 4238.5
+
+Step:  AIC=4156.26
+Churn ~ SeniorCitizen + Partner + Dependents + tenure + PhoneService + 
+    InternetService + Contract + PaperlessBilling + PaymentMethod + 
+    MonthlyCharges + MultipleLinesYes + OnlineSecurityYes + OnlineBackupYes + 
+    DeviceProtectionYes + StreamingTVYes + StreamingMoviesYes + 
+    tenure:TotalCharges
+
+                                 Df Deviance    AIC
+- SeniorCitizen                   1   4112.3 4154.3
+- Partner                         1   4112.4 4154.4
+- OnlineSecurityYes               1   4113.2 4155.2
+- PhoneService                    1   4113.9 4155.9
+- OnlineBackupYes                 1   4114.0 4156.0
+&lt;none&gt;                                4112.3 4156.3
+- DeviceProtectionYes             1   4116.0 4158.0
++ gender                          1   4112.2 4158.2
++ TechSupportYes                  1   4112.2 4158.2
++ InternetService:MonthlyCharges  2   4110.5 4158.5
+- Dependents                      1   4116.8 4158.8
+- MonthlyCharges                  1   4121.9 4163.9
+- PaperlessBilling                1   4122.9 4164.9
+- StreamingTVYes                  1   4126.7 4168.7
+- PaymentMethod                   3   4131.7 4169.7
+- StreamingMoviesYes              1   4128.1 4170.1
+- InternetService                 2   4135.8 4175.8
+- MultipleLinesYes                1   4136.5 4178.5
+- tenure:TotalCharges             1   4139.1 4181.1
+- Contract                        2   4196.5 4236.5
+
+Step:  AIC=4154.28
+Churn ~ Partner + Dependents + tenure + PhoneService + InternetService + 
+    Contract + PaperlessBilling + PaymentMethod + MonthlyCharges + 
+    MultipleLinesYes + OnlineSecurityYes + OnlineBackupYes + 
+    DeviceProtectionYes + StreamingTVYes + StreamingMoviesYes + 
+    tenure:TotalCharges
+
+                                 Df Deviance    AIC
+- Partner                         1   4112.4 4152.4
+- OnlineSecurityYes               1   4113.2 4153.2
+- PhoneService                    1   4113.9 4153.9
+- OnlineBackupYes                 1   4114.0 4154.0
+&lt;none&gt;                                4112.3 4154.3
+- DeviceProtectionYes             1   4116.1 4156.1
++ SeniorCitizen                   1   4112.3 4156.3
++ gender                          1   4112.3 4156.3
++ TechSupportYes                  1   4112.3 4156.3
++ InternetService:MonthlyCharges  2   4110.5 4156.5
+- Dependents                      1   4117.2 4157.2
+- MonthlyCharges                  1   4122.1 4162.1
+- PaperlessBilling                1   4122.9 4162.9
+- StreamingTVYes                  1   4126.8 4166.8
+- PaymentMethod                   3   4131.9 4167.9
+- StreamingMoviesYes              1   4128.3 4168.3
+- InternetService                 2   4136.2 4174.2
+- MultipleLinesYes                1   4136.8 4176.8
+- tenure:TotalCharges             1   4139.1 4179.1
+- Contract                        2   4197.2 4235.2
+
+Step:  AIC=4152.4
+Churn ~ Dependents + tenure + PhoneService + InternetService + 
+    Contract + PaperlessBilling + PaymentMethod + MonthlyCharges + 
+    MultipleLinesYes + OnlineSecurityYes + OnlineBackupYes + 
+    DeviceProtectionYes + StreamingTVYes + StreamingMoviesYes + 
+    tenure:TotalCharges
+
+                                 Df Deviance    AIC
+- OnlineSecurityYes               1   4113.3 4151.3
+- PhoneService                    1   4114.0 4152.0
+- OnlineBackupYes                 1   4114.1 4152.1
+&lt;none&gt;                                4112.4 4152.4
+- DeviceProtectionYes             1   4116.2 4154.2
++ Partner                         1   4112.3 4154.3
++ SeniorCitizen                   1   4112.4 4154.4
++ gender                          1   4112.4 4154.4
++ TechSupportYes                  1   4112.4 4154.4
++ InternetService:MonthlyCharges  2   4110.6 4154.6
+- Dependents                      1   4117.5 4155.5
+- MonthlyCharges                  1   4122.3 4160.3
+- PaperlessBilling                1   4123.1 4161.1
+- StreamingTVYes                  1   4127.0 4165.0
+- PaymentMethod                   3   4132.1 4166.1
+- StreamingMoviesYes              1   4128.5 4166.5
+- InternetService                 2   4136.5 4172.5
+- MultipleLinesYes                1   4137.1 4175.1
+- tenure:TotalCharges             1   4139.2 4177.2
+- Contract                        2   4197.4 4233.4
+
+Step:  AIC=4151.34
+Churn ~ Dependents + tenure + PhoneService + InternetService + 
+    Contract + PaperlessBilling + PaymentMethod + MonthlyCharges + 
+    MultipleLinesYes + OnlineBackupYes + DeviceProtectionYes + 
+    StreamingTVYes + StreamingMoviesYes + tenure:TotalCharges
+
+                                 Df Deviance    AIC
+&lt;none&gt;                                4113.3 4151.3
++ OnlineSecurityYes               1   4112.4 4152.4
++ TechSupportYes                  1   4112.9 4152.9
++ Partner                         1   4113.2 4153.2
++ SeniorCitizen                   1   4113.3 4153.3
++ gender                          1   4113.3 4153.3
+- OnlineBackupYes                 1   4117.4 4153.4
++ InternetService:MonthlyCharges  2   4111.5 4153.5
+- Dependents                      1   4118.5 4154.5
+- PhoneService                    1   4119.0 4155.0
+- DeviceProtectionYes             1   4121.1 4157.1
+- PaperlessBilling                1   4124.1 4160.1
+- PaymentMethod                   3   4133.0 4165.0
+- tenure:TotalCharges             1   4140.0 4176.0
+- MonthlyCharges                  1   4140.7 4176.7
+- StreamingTVYes                  1   4144.9 4180.9
+- StreamingMoviesYes              1   4147.2 4183.2
+- MultipleLinesYes                1   4150.7 4186.7
+- InternetService                 2   4172.9 4206.9
+- Contract                        2   4198.0 4232.0</code></pre>
+</div>
+</div>
+<p>The results of running our stepwise selection was that 12 out of 21 variables were determined to be important predictors to customer churn. Predictors that were dropped as insignificant appeared to be a lot of demographic type such as: SeniorCitizen, gender, and partner. The really important predictors appeared to be: Service usage variables: MultipleLines, InternetService, OnlineBackup, DeviceProtection, StreamingTV, StreamingMovies Contract/payment types: Contract, PaperlessBilling, PaymentMethod Tenure MonthlyCharges. <strong>Will adding to the end here: Additionally, the InternetServices and MonthlyCharges interaction variable is removed during our selection, despite what was seen graphically. This could be due to maintaining each of those variables in the dataset before fitting, and that the interaction effect just was not as significant as the individual factors.</strong></p>
+<p>Running a summary of the step_model on the training data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(step_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Churn ~ Dependents + tenure + PhoneService + InternetService + 
+    Contract + PaperlessBilling + PaymentMethod + MonthlyCharges + 
+    MultipleLinesYes + OnlineBackupYes + DeviceProtectionYes + 
+    StreamingTVYes + StreamingMoviesYes + tenure:TotalCharges, 
+    family = "binomial", data = train_data)
+
+Coefficients:
+                                       Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)                           1.932e+00  3.980e-01   4.854 1.21e-06 ***
+DependentsYes                        -2.165e-01  9.584e-02  -2.259  0.02386 *  
+tenure                               -5.306e-02  4.806e-03 -11.040  &lt; 2e-16 ***
+PhoneServiceYes                       7.333e-01  3.090e-01   2.373  0.01763 *  
+InternetServiceFiber optic            2.454e+00  3.251e-01   7.547 4.47e-14 ***
+InternetServiceNo                    -2.330e+00  3.958e-01  -5.886 3.95e-09 ***
+ContractOne year                     -8.071e-01  1.301e-01  -6.203 5.52e-10 ***
+ContractTwo year                     -1.645e+00  2.131e-01  -7.719 1.17e-14 ***
+PaperlessBillingYes                   2.925e-01  8.925e-02   3.277  0.00105 ** 
+PaymentMethodCredit card (automatic) -1.607e-01  1.337e-01  -1.202  0.22917    
+PaymentMethodElectronic check         2.319e-01  1.110e-01   2.090  0.03665 *  
+PaymentMethodMailed check            -1.875e-01  1.357e-01  -1.381  0.16713    
+MonthlyCharges                       -6.715e-02  1.297e-02  -5.179 2.23e-07 ***
+MultipleLinesYes                      6.890e-01  1.137e-01   6.060 1.36e-09 ***
+OnlineBackupYes                       2.288e-01  1.137e-01   2.013  0.04409 *  
+DeviceProtectionYes                   3.189e-01  1.149e-01   2.776  0.00550 ** 
+StreamingTVYes                        9.050e-01  1.627e-01   5.564 2.64e-08 ***
+StreamingMoviesYes                    9.368e-01  1.625e-01   5.764 8.21e-09 ***
+tenure:TotalCharges                   3.872e-06  7.496e-07   5.165 2.40e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 5701.5  on 4921  degrees of freedom
+Residual deviance: 4113.3  on 4903  degrees of freedom
+AIC: 4151.3
+
+Number of Fisher Scoring iterations: 6</code></pre>
+</div>
+</div>
+<p>Before running our model on the test data, we’ll perform some Odds Ratio on the step_model using the training data to further explain how each variable affects the likelihood of churn…</p>
+<p><strong>My changes changed some of these values very slightly.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># odds ratios</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>(step_model))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                         (Intercept)                        DependentsYes 
+                          6.90404194                           0.80530161 
+                              tenure                      PhoneServiceYes 
+                          0.94831983                           2.08196641 
+          InternetServiceFiber optic                    InternetServiceNo 
+                         11.63179853                           0.09730294 
+                    ContractOne year                     ContractTwo year 
+                          0.44616513                           0.19307812 
+                 PaperlessBillingYes PaymentMethodCredit card (automatic) 
+                          1.33972002                           0.85152033 
+       PaymentMethodElectronic check            PaymentMethodMailed check 
+                          1.26093344                           0.82904795 
+                      MonthlyCharges                     MultipleLinesYes 
+                          0.93505872                           1.99176808 
+                     OnlineBackupYes                  DeviceProtectionYes 
+                          1.25713896                           1.37561680 
+                      StreamingTVYes                   StreamingMoviesYes 
+                          2.47200455                           2.55181459 
+                 tenure:TotalCharges 
+                          1.00000387 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># odds ratios + confidence intervals</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">cbind</span>(<span class="at">effect =</span> <span class="fu">coef</span>(step_model), <span class="fu">confint</span>(step_model)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                          effect      2.5 %     97.5 %
+(Intercept)                           6.90404194 3.17169890 15.1037454
+DependentsYes                         0.80530161 0.66674191  0.9709220
+tenure                                0.94831983 0.93934381  0.9572132
+PhoneServiceYes                       2.08196641 1.13825790  3.8235067
+InternetServiceFiber optic           11.63179853 6.17175422 22.0863274
+InternetServiceNo                     0.09730294 0.04470648  0.2110669
+ContractOne year                      0.44616513 0.34465561  0.5741481
+ContractTwo year                      0.19307812 0.12549162  0.2897712
+PaperlessBillingYes                   1.33972002 1.12502261  1.5963859
+PaymentMethodCredit card (automatic)  0.85152033 0.65490955  1.1062326
+PaymentMethodElectronic check         1.26093344 1.01504497  1.5683860
+PaymentMethodMailed check             0.82904795 0.63547651  1.0819679
+MonthlyCharges                        0.93505872 0.91148653  0.9590274
+MultipleLinesYes                      1.99176808 1.59507398  2.4910331
+OnlineBackupYes                       1.25713896 1.00650242  1.5717366
+DeviceProtectionYes                   1.37561680 1.09887130  1.7240158
+StreamingTVYes                        2.47200455 1.79945513  3.4052211
+StreamingMoviesYes                    2.55181459 1.85801783  3.5141681
+tenure:TotalCharges                   1.00000387 1.00000240  1.0000053</code></pre>
+</div>
+</div>
+<p><strong>Will: Made some slight adjustments to the table. After my above changes the coefficient values changed slightly for several variables, and also I added to the interpretation column, so that it included the base level for all the factor variables. For example, Fiber optic users are 12x more likely than those with DSL, because DSL is the “base” level for InternetService that the other InternetService variables are compared to. You can tell that’s the case because there is no InternetServiceDSL coefficient, even though that category is present in the data. Also exp(beta) isn’t the odds or odds ratio, but how a variable effects the odds based on a one-unit increase/ presence of categorical variable. Also also I’m including tenure:TotalCharges interaction variable in the table, because it helps for some narrative stuff later in the wald test section.</strong></p>
+<p>Interpretation:</p>
+<p>We know that…</p>
+<ul>
+<li>if the variables effect (<span class="math inline">\(e^{\beta}\)</span>) on the odds is &gt; than 1 : The variable (predictor) increases the odds of customer churn</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 12%">
+<col style="width: 65%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Predictor</th>
+<th style="text-align: left;">Odds Effect</th>
+<th style="text-align: left;">Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">MultipleLinesYes</td>
+<td style="text-align: left;">1.99</td>
+<td style="text-align: left;">Having multiple lines nearly <strong>doubles</strong> churn odds.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">InternetServiceFiber optic</td>
+<td style="text-align: left;">11.63</td>
+<td style="text-align: left;">Fiber optic users are nearly <strong>12x more likely</strong> to churn than those with DSL.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">OnlineBackupYes</td>
+<td style="text-align: left;">1.26</td>
+<td style="text-align: left;">Customers with online backup are <strong>26% more likely</strong> to churn.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DeviceProtectionYes</td>
+<td style="text-align: left;">1.38</td>
+<td style="text-align: left;">Customers with device protection are <strong>38% more likely</strong> to churn.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">StreamingTVYes</td>
+<td style="text-align: left;">2.47</td>
+<td style="text-align: left;">Streaming TV users are <strong>2.5x more likely</strong> to churn.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">StreamingMoviesYes</td>
+<td style="text-align: left;">2.55</td>
+<td style="text-align: left;">Streaming Movies users are <strong>2.6x more likely</strong> to churn.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PaperlessBillingYes</td>
+<td style="text-align: left;">1.34</td>
+<td style="text-align: left;">Paperless billing customers are <strong>34% more likely</strong> to churn.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PaymentMethodElectronic check</td>
+<td style="text-align: left;">1.26</td>
+<td style="text-align: left;">Paying by electronic check increases churn odds by over <strong>25%</strong> compared to Bank Transfer.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">tenure:TotalCharges</td>
+<td style="text-align: left;">1 + 3.87e-06</td>
+<td style="text-align: left;">As both tenure and Total Charges increase, the odds of churn increase by a small amount.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>if the variables effect (<span class="math inline">\(e^{\beta}\)</span>) on the odds is less than 1 : The variable (predictor) decreases the odds of customer churn</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 12%">
+<col style="width: 66%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Predictor</th>
+<th style="text-align: left;">Odds Effect</th>
+<th style="text-align: left;">Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">DependentsYes</td>
+<td style="text-align: left;">0.81</td>
+<td style="text-align: left;">Customers with dependents are <strong>19% less likely</strong> to churn than those without.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">InternetServiceNo</td>
+<td style="text-align: left;">0.10</td>
+<td style="text-align: left;">Customers with no internet service are <strong>much less likely</strong> to churn than those with.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ContractOne year</td>
+<td style="text-align: left;">0.45</td>
+<td style="text-align: left;">One-year contract customers are <strong>55% less likely</strong> to churn than month to month.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ContractTwo year</td>
+<td style="text-align: left;">0.19</td>
+<td style="text-align: left;">Two-year contract customers are <strong>81% less likely</strong> to churn than month to month.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PaymentMethodMailed check</td>
+<td style="text-align: left;">0.83</td>
+<td style="text-align: left;">Paying by mailed check slightly <strong>reduces</strong> churn risk compared to Bank Transfer.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MonthlyCharges</td>
+<td style="text-align: left;">0.94</td>
+<td style="text-align: left;">Slight effect — higher monthly charges very slightly <strong>decrease</strong> churn risk.</td>
+</tr>
+</tbody>
+</table>
+<p>Now to try our model on the test data..</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>pred_probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(step_model, <span class="at">newdata =</span> test_data, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>pred_class <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(pred_probs <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="fu">as.factor</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>and evaluate the performance…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(pred_class, test_data<span class="sc">$</span>Churn, <span class="at">positive =</span> <span class="st">'1'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction    0    1
+         0 1423  254
+         1  127  306
+                                          
+               Accuracy : 0.8194          
+                 95% CI : (0.8023, 0.8356)
+    No Information Rate : 0.7346          
+    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+                                          
+                  Kappa : 0.5008          
+                                          
+ Mcnemar's Test P-Value : 1.081e-10       
+                                          
+            Sensitivity : 0.5464          
+            Specificity : 0.9181          
+         Pos Pred Value : 0.7067          
+         Neg Pred Value : 0.8485          
+             Prevalence : 0.2654          
+         Detection Rate : 0.1450          
+   Detection Prevalence : 0.2052          
+      Balanced Accuracy : 0.7322          
+                                          
+       'Positive' Class : 1               
+                                          </code></pre>
+</div>
+</div>
+<p>Interpretation of model evaluation:</p>
+<p>The logistic regression model achieved an 81.5% accuracy on the test set. Precision was relatively strong at 69.1%, meaning when the model predicts churn, it is usually correct. However, the recall was 55.2%, indicating that about half of true churners were correctly identified. Overall, the model provides valuable insights for targeting at-risk customers, but improvements could be made to capture more churn cases.</p>
+<p><strong>Will: adding to the above so that it includes sensitivity and specificity, since that is what the professor mostly talked about.</strong><br>
+The logistic regression model achieved an 81.9% accuracy on the test set. Precision was relatively strong at 70.7%, meaning when the model predicts churn, it is usually correct. However, the recall/sensitivity was 54.6%, indicating that only about half of true churners were correctly identified. Specificity, or the rate at which non-churners were identified, performed quite well at 91.81%. These results can at least partially be attributed to the imbalanced nature of our response variable: fewer customers in the dataset churned than didn’t. Overall, the model provides valuable insights for targeting at-risk customers and the factors that influence, but improvements could be made to better predict churn cases.</p>
+<p>#JUST SEEING IF I CAN MAKE A BETTER MODEL FROM THIS POINT FORWARD.</p>
+<p>Trying out lowering the threshold to 0.4 instead</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>adj_pred_class <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(pred_probs <span class="sc">&gt;</span> <span class="fl">0.4</span>, <span class="dv">1</span>, <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="fu">as.factor</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confusionMatrix</span>(adj_pred_class, test_data<span class="sc">$</span>Churn, <span class="at">positive =</span> <span class="st">'1'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction    0    1
+         0 1313  174
+         1  237  386
+                                          
+               Accuracy : 0.8052          
+                 95% CI : (0.7877, 0.8219)
+    No Information Rate : 0.7346          
+    P-Value [Acc &gt; NIR] : 2.03e-14        
+                                          
+                  Kappa : 0.5178          
+                                          
+ Mcnemar's Test P-Value : 0.002226        
+                                          
+            Sensitivity : 0.6893          
+            Specificity : 0.8471          
+         Pos Pred Value : 0.6196          
+         Neg Pred Value : 0.8830          
+             Prevalence : 0.2654          
+         Detection Rate : 0.1829          
+   Detection Prevalence : 0.2953          
+      Balanced Accuracy : 0.7682          
+                                          
+       'Positive' Class : 1               
+                                          </code></pre>
+</div>
+</div>
+<p>Interpretation after dropping threshold:</p>
+<p>By adjusting the decision threshold from 0.5 to 0.4, we did improve the model’s ability to identify churners — increased the recall from 55% to 67%. The trade-off was a small reduction in precision, but overall, the model became more effective at detecting customers who are at risk of leaving. The F1 Score also improved, indicating a better balance between precision and recall.</p>
+</section>
+<section id="wald-test-stuff" class="level3">
+<h3 class="anchored" data-anchor-id="wald-test-stuff">Wald test stuff</h3>
+<p>This first part initiates a function I created for the third exercise. Basically it performs the Wald test with the confidence interval method, then gives the results graphically on a number line.</p>
+<p>For it to work easily I need to save the model summary results to a variable:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>step_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(step_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Performing the test on all coefficients. We dont need all of them but we can pick out our favorites once they’re done.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>waldlist <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">row_number</span>(step_summary<span class="sc">$</span>coefficients[,<span class="dv">1</span>]),</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>       <span class="cf">function</span>(x) {</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>       <span class="fu">wald_numline_twosided</span>(step_summary<span class="sc">$</span>coefficients[,<span class="dv">1</span>][x][[<span class="dv">1</span>]],step_summary<span class="sc">$</span>coefficients[,<span class="dv">2</span>][x][[<span class="dv">1</span>]],x<span class="dv">-1</span>, <span class="at">variable =</span> <span class="fu">names</span>(step_summary<span class="sc">$</span>coefficients[,<span class="dv">1</span>][x]), <span class="at">alpha =</span> <span class="fl">0.05</span>)</span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>       }</span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (x <span class="cf">in</span> <span class="fu">seq</span>(<span class="fu">length</span>(waldlist))){</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(waldlist[[x]][[<span class="dv">1</span>]])</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-6.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-7.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-8.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-9.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-10.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-11.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-12.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-13.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-14.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-15.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-16.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-17.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-18.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-40-19.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>No here are the assumptions, hypotheses, test statistic, and Type I errors:</p>
+<p>For logistic regression, the model can be written in terms of a probability. The general form of the model is as follows:</p>
+<p><span class="math inline">\(E(Y_{i}) := \hat{p_{i}} = \frac{1}{1 + e^{-(\beta_{0}+\beta_{1}x_{ij}+...+\beta_{k}x_{ik})}}\)</span></p>
+<p>Where <span class="math inline">\(Y\)</span> has the following assumptions:</p>
+<p><span class="math inline">\(Y_{i} \sim Bernoulli(p_{i})\)</span></p>
+<p>Where p is the probability of our event.</p>
+<p>To perform the two-sided Wald test for effect we have the following null and alternative hypothesis:</p>
+<p><span class="math inline">\(H_{0}: \beta_{j} = 0\)</span><br>
+<span class="math inline">\(H_{1}: \beta_{j} \neq 0\)</span></p>
+<p>The probability of a Type I error, that is rejecting the null hypothesis when it is true, is as follows:</p>
+<p><span class="math inline">\(\alpha = 0.05\)</span></p>
+<p>Since this is a two-sided test for effect we will utilize <span class="math inline">\(\frac{\alpha}{2}\)</span> and a build a 95% confidence interval to determine if 0 falls within our range.<br>
+The Test has the following assumption:</p>
+<p><span class="math inline">\(Z_{obs} = \frac{\hat{\beta_{j}}}{se(\hat{\beta_{j}})} \sim N(0,1)\)</span></p>
+<p>So we will use the Standard Normal distribution to conduct our test, with the confidence interval taking the following form:</p>
+<p><span class="math inline">\(\hat{\beta}_{0} \pm Z_{\frac{\alpha}{2}}se(\hat{\beta}_{0})\)</span><br>
+<span class="math inline">\(\therefore\)</span> if <span class="math inline">\(0 \in (\hat{\beta}_{0} - Z_{\frac{\alpha}{2}}se(\hat{\beta}_{0}),\space \hat{\beta}_{0} + Z_{\frac{\alpha}{2}}se(\hat{\beta}_{0}))\)</span> then we would fail to reject the null hypothesis.</p>
+<p>And the conclusions for some of the more interesting/important variables:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>waldlist[[<span class="dv">12</span>]][[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For InternetServiceFiber optic, that is, when a customer has Fiber Optic internet service instead of DSL, the Beta coefficient is 2.4537426, with a lower bound of 1.8164663 and upper bound of 3.0910189 for the confidence interval. Since the 95% confidence interval does not include 0, we would reject the null hypothesis and conclude that there is a significant effect on the probability of churn when a customer chooses Fiber Optic over DSL, holding all other variables constant.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>waldlist[[<span class="dv">10</span>]][[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For InternetServiceNo, that is, when a customer has no internet service, the Beta coefficient is -2.3299261 when compared with DSL, with a lower bound of -3.1057307 and upper bound of -1.5541215 for the confidence interval. Since the 95% confidence interval does not include 0, we would reject the null hypothesis and conclude that there is a significant effect on the probability of churn when a customer has no internet service compared to one that has DSL, holding all other variables constant.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>waldlist[[<span class="dv">9</span>]][[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-43-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For PaymentMethodMailed check, that is, when a customer pays for their services via a check in the mail, the Beta coefficient is -0.1874773 when compared with those that pay via bank transfer, with a lower bound of -0.4534584 and upper bound of 0.0785038 for the confidence interval. Since the 95% confidence interval includes 0, we would fail to reject the null hypothesis and conclude that there is not a significant effect on the probability of churn when a customer pays their bill via mailed check compared to one that pays via automatic bank transfer, holding all other variables constant.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>waldlist[[<span class="dv">11</span>]][[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For PaymentMethodElectronic check, that is, when a customer pays for their services via an electronic check, the Beta coefficient is 0.2318523 when compared with those that pay via automatic bank transfer, with a lower bound of 0.0143842 and upper bound of 0.4493204 for the confidence interval. Since the 95% confidence interval does not include 0, we would reject the null hypothesis and conclude that there is a significant effect on the probability of churn when a customer pays for their services via an electronic check compared to one that pays via automatic bank transfer, holding all other variables constant.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>waldlist[[<span class="dv">7</span>]][[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-45-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For tenure, that is, the number of months a customer has stayed with the company, the Beta coefficient is -0.0530635 when compared with DSL, with a lower bound of -0.0624837 and upper bound of -0.0436433 for the confidence interval. Since the 95% confidence interval does not include 0, we would reject the null hypothesis and conclude that there is a significant effect on the probability of churn for every increase of a month in tenure, holding all other variables constant.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>waldlist[[<span class="dv">5</span>]][[<span class="dv">1</span>]] <span class="co">#note, values are so small they does not display graphically well</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final-project-sandbox-combined_files/figure-html/unnamed-chunk-46-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For tenure:TotalCharges, that is, the interaction between number of months a customer has stayed with the company and how much they have paid in total charges, the Beta coefficient is 3.8716847^{-6} when compared with DSL, with a lower bound of 2.4025853^{-6} and upper bound of 5.3407841^{-6} for the confidence interval. Since the 95% confidence interval does not include 0, we would reject the null hypothesis and conclude that there is a significant effect on the probability of churn for every increase of a month in tenure and/or dollar in total charges, holding all other variables constant.<br>
+<strong>Note: I wanted to show this one because the previous table made it seem unimportant, but because it’s an interaction variable and therefore multiplicative, the units increase very quickly. That’s why our beta coefficient is so small but the variable is still significant. Also, it has an inverse effect compared to tenure, meaning if both the more tenure and TotalCharges increase together, the likelihood of churn increases. Naturally these will increase together, but if they increase moreso than they do for others, i.e.&nbsp;if rates increase for some more than others, they will be more likely to churn.</strong></p>
+<p>You probably get the idea from here, we definitely don’t need to include all of these, but just to make it easy to pair it with some conclusion if you like any of them. Any of the others can be recreated if need be, just may have to play with the indices to get the right ones if you want to recreate one, or just reach out to ya boi Will and I’ll take care of it.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
